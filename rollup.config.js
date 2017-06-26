@@ -1,5 +1,6 @@
-import nodeResolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
+import flow from 'rollup-plugin-flow';
+import nodeResolve from 'rollup-plugin-node-resolve';
 
 
 export default {
@@ -8,11 +9,13 @@ export default {
   format: "umd",
   moduleName: "ntc",
   plugins: [
+    // order counts!
+    // first remove flow annotatins, then babel!
+    flow(),
     babel({
       babelrc: false,
       exclude: [
         'node_modules/**',
-        'src/css/**',
         'src/js/**/*.test.js',
       ],
       presets: [ [ 'es2015', { modules: false } ] ],

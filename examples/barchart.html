@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+  <title>barchart</title>
+</head>
+<body>
+  <div class='wrapper'>
+    <div id='chart'></div>
+  </div>
+  <script src='../dist/ntc.js'></script>
+  <script>
+    const barChart = ntc.bar();
+    const data = [
+      {x: 'a', y: 10},
+      {x: 'b', y: 20},
+      {x: 'c', y: 30},
+      {x: 'd', y: 40},
+    ];
+    const chartContainer = ntc.select('#chart');
+
+    barChart.width(800).height(600);
+    barChart.margin({top: 50, left: 50, right: 50, bottom: 20});
+    chartContainer.datum(data /*[data] FIXME*/).call(barChart);
+  </script>
+</body>
+</html>

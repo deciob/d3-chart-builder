@@ -1,17 +1,23 @@
+// @flow
+
 import {
   select
-} from "d3-selection";
+} from 'd3-selection';
 
-export default function(config) {
-  const svgContainer = d3.select(this);
+export default function(
+  config: {[key: string]: any},
+  container: Array<mixed>
+): Array<mixed> {
   const width = config.width;
-  const heigh = config.height;
-  const margin = confi.margin;
+  const height = config.height;
+  const margin = config.margin;
 
-  let svg = svgContainer.select('svg');
+  // $FlowD3
+  let svg = container.select('svg');
 
   if (svg.empty()) {
-    svg = svgContainer.append('svg')
+    // $FlowD3
+    svg = container.append('svg')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom);
   }

@@ -1,13 +1,15 @@
 // @flow
 
 import {
-  select
+  select,
 } from 'd3-selection';
 
 import {
   scaleBand,
-  scaleLinear
+  scaleLinear,
 } from 'd3-scale';
+
+import helpers from '../helpers';
 
 export default function(
   config: {[key: string]: any},
@@ -35,36 +37,42 @@ export default function(
       .range([0, height])
       .domain([0, 40]);
 
-  // $FlowD3
-  let barsG = container.select('.bars-g');
+  const max = helpers.nestedMax(data, yAccessor);
 
-  if (barsG.empty()) {
-    // $FlowD3
-    barsG = container.append('g')
-      .attr('class', 'bars-g');
-  }
+  console.log(max);
 
-  const bars = barsG
-    .selectAll('.bar')
-    .data(data, yAccessor);
-  bars.exit()
-    .remove();
-  bars.enter()
-    .append('rect')
-      .attr('class', 'bar')
-      .attr('x', d => {
-        console.log(xAccessor(d), xScale.bandwidth())
-        return xScale.bandwidth()
-      })
-      .attr('y', d => yScale(yAccessor(d)))
-      .attr('width', xScale.bandwidth())
-      .attr('height', d => xScale(xAccessor(d)));
-    // .merge(bars).transition(transition)
-    //   .attr('x', d => xScale(xAccessor(d)))
-    //   .attr('y', d => yScale(yAccessor(d)))
-    //   .attr('width', xScale.bandwidth())
-    //   .attr('height', d => xScale(xAccessor(d)))
-    //   .delay(200);
 
-  return container;
+  //
+  // // $FlowD3
+  // let barsG = container.select('.bars-g');
+  //
+  // if (barsG.empty()) {
+  //   // $FlowD3
+  //   barsG = container.append('g')
+  //     .attr('class', 'bars-g');
+  // }
+  //
+  // const bars = barsG
+  //   .selectAll('.bar')
+  //   .data(data, yAccessor);
+  // bars.exit()
+  //   .remove();
+  // bars.enter()
+  //   .append('rect')
+  //     .attr('class', 'bar')
+  //     .attr('x', d => {
+  //       console.log(xAccessor(d), xScale.bandwidth())
+  //       return xScale.bandwidth()
+  //     })
+  //     .attr('y', d => yScale(yAccessor(d)))
+  //     .attr('width', xScale.bandwidth())
+  //     .attr('height', d => xScale(xAccessor(d)));
+  //   // .merge(bars).transition(transition)
+  //   //   .attr('x', d => xScale(xAccessor(d)))
+  //   //   .attr('y', d => yScale(yAccessor(d)))
+  //   //   .attr('width', xScale.bandwidth())
+  //   //   .attr('height', d => xScale(xAccessor(d)))
+  //   //   .delay(200);
+  //
+  // return container;
 };

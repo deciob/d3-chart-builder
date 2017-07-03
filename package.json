@@ -7,6 +7,7 @@
   "author": "deciob <decio.battaglia@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "d3-array": "^1.2.0",
     "d3-collection": "^1.0.4",
     "d3-scale": "^1.0.6",
     "d3-selection": "^1.1.0",

@@ -33,12 +33,10 @@ export default function(): (Array<mixed>) => mixed  {
 
   function exports(selection: Array<mixed>) {
     const wrapperComponent = wrapper(config, selection);
-
     // $FlowD3
-    selection.each(function callback(data) {
-      // FIXME
-      // const barComponent = bar(config, wrapperComponent, transition, data);
-    });
+    const data = selection.datum();
+
+    const barComponent = bar(config, wrapperComponent, transition, data);
   }
 
   helpers.getset(exports, config);

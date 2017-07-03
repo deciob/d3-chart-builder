@@ -4,6 +4,10 @@ import {
   entries
 } from 'd3-collection';
 
+import {
+  max,
+} from 'd3-array';
+
 
 // deep clone an object
 function clone(obj: {[key: string]: any}): {[key: string]: any} {
@@ -56,9 +60,20 @@ function isObject<T>(o: T): boolean {
   return Object.prototype.toString.call(o) === '[object Object]';
 }
 
+function nestedMax(
+  input: Array<mixed>
+  , accessor?: {[key: string]: any} => number
+): number {
+  if (Array.isArray(input)) {
+    return max(input.map(i => max(i, accessor)));
+  }
+  return max(input, accessor);
+}
+
 export default {
   clone,
   extend,
   getset,
   isObject,
+  nestedMax,
 };

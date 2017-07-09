@@ -3,6 +3,11 @@
 <head>
   <meta charset='utf-8'>
   <title>barchart</title>
+  <style type="text/css">
+    .bar {
+      fill: steelblue;
+    }
+  </style>
 </head>
 <body>
   <div class='wrapper'>
@@ -19,9 +24,9 @@
     ];
     const chartContainer = ntc.select('#chart');
 
-    barChart.width(800).height(600);
+    barChart.width(800).height(600).transitionDuration(1250);
     barChart.margin({top: 50, left: 50, right: 50, bottom: 20});
-    chartContainer.datum([data]).call(barChart);
+    chartContainer.datum(data).call(barChart);
   </script>
 </body>
 </html>

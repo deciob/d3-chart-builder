@@ -6,10 +6,16 @@ export const baseConfig = {
     bottom: 0,
     left: 0,
   },
+
   transitionDuration: 600,
   width: 100,
+  xAccessor: d => d.x,
+  xScaleType: 'time',
+  yAccessor: d => d.y,
+  yScaleType: 'linear',
 }
 
 export const barConfig = {
-
+  horizontal: false,
+  xScaleType: 'ordinal',
 }

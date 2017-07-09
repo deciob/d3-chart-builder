@@ -5,8 +5,9 @@ import {
 } from 'd3-collection';
 
 import {
-  max,
-} from 'd3-array';
+  scaleBand,
+  scaleLinear,
+} from 'd3-scale';
 
 
 // deep clone an object
@@ -36,6 +37,29 @@ function extend(
   return targetClone;
 }
 
+// $FlowNoD3
+function getOrdinalScale(config, data) {
+  return scaleBand()
+      .rangeRound([0, config.width], 0.1)
+      .padding(0.1)
+      .domain(data.map(config.xAccessor));
+}
+
+// $FlowNoD3
+function getQuantitativeScale(config, domain, data) {
+  let scale;
+  switch (config.quantitativeScaleType) {
+    case 'linear':
+      scale = scaleLinear();
+    default:
+      scale = scaleLinear();
+  };
+
+  return scale
+      .range([0, config.height])
+      .domain(domain);
+}
+
 // for each attribute in `state` it sets a getter-setter function on `f`
 function getset(
   f: (Array<mixed>) => mixed,
@@ -60,20 +84,11 @@ function isObject<T>(o: T): boolean {
   return Object.prototype.toString.call(o) === '[object Object]';
 }
 
-function nestedMax(
-  input: Array<mixed>
-  , accessor?: {[key: string]: any} => number
-): number {
-  if (Array.isArray(input)) {
-    return max(input.map(i => max(i, accessor)));
-  }
-  return max(input, accessor);
-}
-
 export default {
   clone,
   extend,
+  getOrdinalScale,
+  getQuantitativeScale,
   getset,
   isObject,
-  nestedMax,
 };

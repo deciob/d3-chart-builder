@@ -76,7 +76,7 @@ export default function(): (Array<mixed>) => mixed  {
     if (config.yScale) {
       state.yScale = config.yScale;
     } else {
-      state.yScale = helpers.getQuantitativeScale(config, [state.yMin, state.yMax], data);
+      state.yScale = helpers.getQuantitativeScale(config, [0, state.yMax], data);
     }
 
     const barComponent = bar(config, state, wrapperComponent, data);

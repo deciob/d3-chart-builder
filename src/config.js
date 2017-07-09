@@ -12,6 +12,7 @@ export const baseConfig = {
   xAccessor: d => d.x,
   xScaleType: 'time',
   yAccessor: d => d.y,
+  yMax: void 0,
   yScaleType: 'linear',
 }
 

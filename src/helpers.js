@@ -1,7 +1,7 @@
 // @flow
 
 import {
-  entries
+  entries,
 } from 'd3-collection';
 
 import {
@@ -10,11 +10,15 @@ import {
 } from 'd3-scale';
 
 
+function isObject<T>(o: T): boolean {
+  return Object.prototype.toString.call(o) === '[object Object]';
+}
+
 // deep clone an object
 function clone(obj: {[key: string]: any}): {[key: string]: any} {
   if (obj === null || typeof obj !== 'object') return obj;
   const copy = obj.constructor();
-  Object.keys(obj).forEach(attr => {
+  Object.keys(obj).forEach((attr) => {
     copy[attr] = clone(obj[attr]);
   });
   return copy;
@@ -24,14 +28,14 @@ function clone(obj: {[key: string]: any}): {[key: string]: any} {
 // overriding target values with source ones
 function extend(
   target: {[key: string]: any},
-  source: {[key: string]: any}
+  source: {[key: string]: any},
 ): {[key: string]: any} {
   if (!isObject(target) || !isObject(source)) {
     throw new Error('extend only accepts objects');
   }
 
   const targetClone = clone(target);
-  Object.keys(source).forEach(prop => {
+  Object.keys(source).forEach((prop) => {
     targetClone[prop] = source[prop];
   });
   return targetClone;
@@ -46,14 +50,15 @@ function getOrdinalScale(config, domain) {
 }
 
 // $FlowNoD3
-function getQuantitativeScale(config, domain, range, data) {
+function getQuantitativeScale(config, domain, range) {
   let scale;
   switch (config.quantitativeScaleType) {
     case 'linear':
       scale = scaleLinear();
+      break;
     default:
       scale = scaleLinear();
-  };
+  }
 
   return scale
       .range(range)
@@ -63,9 +68,9 @@ function getQuantitativeScale(config, domain, range, data) {
 // for each attribute in `state` it sets a getter-setter function on `f`
 function getset(
   f: (Array<mixed>) => mixed,
-  state: {[key: string]: any}
+  state: {[key: string]: any},
 ): (Array<mixed>) => mixed {
-  entries(state).forEach(o => {
+  entries(state).forEach((o) => {
     /* eslint no-param-reassign:0 */
     f[o.key] = function getSetCallback(x) {
       if (x === undefined) return state[o.key];
@@ -78,10 +83,6 @@ function getset(
     };
   });
   return f;
-}
-
-function isObject<T>(o: T): boolean {
-  return Object.prototype.toString.call(o) === '[object Object]';
 }
 
 export default {

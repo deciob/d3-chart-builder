@@ -1,7 +1,7 @@
 import helpers from './helpers';
 
 test('clone', () => {
-  const input = {year: 1950, population: 5.2};
+  const input = { year: 1950, population: 5.2 };
   const output = helpers.clone(input);
 
   expect(input).toBe(input);
@@ -11,7 +11,7 @@ test('clone', () => {
 test('extend', () => {
   const source = {
     year: 1960,
-    incomeLevel: "high",
+    incomeLevel: 'high',
   };
 
   const target = {
@@ -24,7 +24,7 @@ test('extend', () => {
     year: 1960,
     population: 5.2,
     cities: ['Rome', 'Milan'],
-    incomeLevel: "high",
+    incomeLevel: 'high',
   }
 
   // extend target object with source object
@@ -37,7 +37,7 @@ test('extend', () => {
 });
 
 test('getOrdinalScale', () => {
-  const config = {width: 100};
+  const config = { width: 100 };
   const domain = ['a', 'b', 'c'];
   const scale = helpers.getOrdinalScale(config, domain);
 

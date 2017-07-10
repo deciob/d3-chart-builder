@@ -1,5 +1,5 @@
 import {
-  select
+  select,
 } from 'd3-selection';
 
 import bar from './charts/bar';

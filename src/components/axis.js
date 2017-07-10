@@ -5,16 +5,13 @@ import {
   axisLeft,
 } from 'd3-axis';
 
-import {
-  select
-} from 'd3-selection';
 
 function drawAxis(
   config: {[key: string]: any},
   state: {[key: string]: any},
   container: Array<mixed>,
   cssClass: string,
-  axis: (Array<mixed>) => mixed
+  axis: (Array<mixed>) => mixed,
 ): Array<mixed> {
   // $FlowNoD3
   let axisG = container.select(`.${cssClass}`);
@@ -29,6 +26,8 @@ function drawAxis(
       case 'y-axis-g':
         axisG.attr('class', cssClass);
         break;
+      default:
+        break;
     }
   }
 
@@ -40,7 +39,7 @@ function drawAxis(
   return axisG;
 }
 
-export const xAxis = function(
+export const xAxis = function (
   config: {[key: string]: any},
   state: {[key: string]: any},
   container: Array<mixed>
@@ -51,7 +50,7 @@ export const xAxis = function(
     if (config.xAxis) {
       return drawAxis(config, state, container, 'x-axis-g', config.xAxis);
     } else {
-      let axis = axisBottom(state.xScale);
+      const axis = axisBottom(state.xScale);
       return drawAxis(config, state, container, 'x-axis-g', axis);
     }
   }
@@ -59,20 +58,19 @@ export const xAxis = function(
   return [];
 };
 
-export const yAxis = function(
+export const yAxis = function (
   config: {[key: string]: any},
   state: {[key: string]: any},
-  container: Array<mixed>
+  container: Array<mixed>,
 ): Array<mixed> {
   const height = config.height;
 
   if (config.yAxisShow) {
     if (config.yAxis) {
       return drawAxis(config, state, container, 'y-axis-g', config.yAxis);
-    } else {
-      let axis = axisLeft(state.yScale);
-      return drawAxis(config, state, container, 'y-axis-g', axis);
     }
+    const axis = axisLeft(state.yScale);
+    return drawAxis(config, state, container, 'y-axis-g', axis);
   }
 
   return [];

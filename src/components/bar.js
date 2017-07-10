@@ -1,17 +1,10 @@
 // @flow
 
-import {
-  select,
-} from 'd3-selection';
-
-import helpers from '../helpers';
-
-
-export default function(
+export default function (
   config: {[key: string]: any},
   state: {[key: string]: any},
   container: Array<mixed>,
-  data: Array<{[key: string]: number | string}>
+  data: Array<{[key: string]: number | string}>,
 ): Array<mixed> {
   const width = config.width;
   const height = config.height;
@@ -47,7 +40,8 @@ export default function(
       .attr('width', xScale.bandwidth())
       .attr('y', height)
     // ENTER + UPDATE
-    .merge(bars).transition(transition)
+    .merge(bars)
+      .transition(transition)
       .attr('x', d => xScale(xAccessor(d)))
       .attr('width', xScale.bandwidth())
       .attr('y', d => yScale(yAccessor(d)))
@@ -55,4 +49,4 @@ export default function(
       .delay(delay);
 
   return container;
-};
+}

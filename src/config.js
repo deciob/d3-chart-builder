@@ -11,18 +11,18 @@ export const baseConfig = {
   transitionStepSeed: 40,
   width: 100,
   xAccessor: d => d.x,
-  xAxis: void 0,
+  xAxis: undefined,
   xAxisShow: true,
-  xDomain: void 0,
+  xDomain: undefined,
   xScaleType: 'time',
   yAccessor: d => d.y,
-  yAxis: void 0,
+  yAxis: undefined,
   yAxisShow: true,
-  yDomain: void 0,
+  yDomain: undefined,
   yScaleType: 'linear',
-}
+};
 
 export const barConfig = {
   horizontal: false,
   xScaleType: 'ordinal',
-}
+};

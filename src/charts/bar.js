@@ -2,20 +2,15 @@
 
 import {
   max,
-  min,
 } from 'd3-array';
 
 import {
-  select
-} from 'd3-selection';
-
-import {
-  transition
+  transition,
 } from 'd3-transition';
 
 import {
   baseConfig,
-  barConfig
+  barConfig,
 } from '../config';
 
 import {
@@ -36,29 +31,32 @@ import wrapper from '../components/wrapper';
  chartContainer.datum(data).call(barChart);
  */
 
-export default function(): (Array<mixed>) => mixed  {
+export default function (): (Array<mixed>) => mixed {
   const config = helpers.extend(baseConfig, barConfig);
-  const t = transition().duration(config.transitionDuration);
 
   function exports(selection: Array<mixed>) {
     const wrapperComponent = wrapper(config, selection);
     // $FlowNoD3
     const data = selection.datum();
     const state = {};
-    const minX = min(data, config.xAccessor);
-    const maxX = max(data, config.xAccessor);
-    const minY = min(data, config.yAccessor);
+    // const minX = min(data, config.xAccessor);
+    // const maxX = max(data, config.xAccessor);
+    // const minY = min(data, config.yAccessor);
     const maxY = max(data, config.yAccessor);
 
     switch (config.xScaleType) {
       case 'ordinal':
-        state.xDomain = config.xDomain !== undefined ? config.xDomain : data.map(config.xAccessor);
+        state.xDomain = config.xDomain !== undefined ?
+          config.xDomain :
+          data.map(config.xAccessor);
         state.xScale = helpers.getOrdinalScale(config, state.xDomain);
+        break;
+      default:
         break;
     }
 
     state.yDomain = config.yDomain !== undefined ? config.yDomain : [0, maxY];
-    state.yScale = helpers.getQuantitativeScale(config, [0, maxY], [config.height, 0], data);
+    state.yScale = helpers.getQuantitativeScale(config, [0, maxY], [config.height, 0]);
 
     state.transition = transition().duration(config.transitionDuration);
     state.transitionDelay = (d, i) => i * config.transitionStepSeed;
@@ -71,4 +69,4 @@ export default function(): (Array<mixed>) => mixed  {
   helpers.getset(exports, config);
 
   return exports;
-};
+}

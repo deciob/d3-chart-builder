@@ -5,7 +5,7 @@
   <title>barchart</title>
   <style type="text/css">
     .bar {
-      fill: steelblue;
+      fill: #feb24c;
     }
   </style>
 </head>
@@ -17,16 +17,55 @@
   <script>
     const barChart = ntc.bar();
     const data = [
-      {x: 'a', y: 10},
-      {x: 'b', y: 20},
-      {x: 'c', y: 30},
-      {x: 'd', y: 40},
+      [
+        {x: 'a', y: 10},
+        {x: 'b', y: 20},
+        {x: 'c', y: 30},
+        {x: 'd', y: 40},
+      ],
+      [
+        {x: 'a', y: 12},
+        {x: 'b', y: 24},
+        {x: 'c', y: 36},
+        {x: 'd', y: 49},
+      ],
+      [
+        {x: 'a', y: 10},
+        {x: 'd', y: 40},
+      ],
+      [
+        {x: 'a', y: 10},
+        {x: 'b', y: 10},
+        {x: 'c', y: 15},
+        {x: 'd', y: 46},
+      ],
+      [
+        {x: 'a', y: 10},
+        {x: 'b', y: 20},
+        {x: 'c', y: 30},
+        {x: 'd', y: 40},
+        {x: 'e', y: 28},
+      ],
     ];
     const chartContainer = ntc.select('#chart');
+    const duration = 750;
+    let dataIndex = 0;
 
-    barChart.width(800).height(600).transitionDuration(750);
+    barChart.width(800).height(600).transitionDuration(duration);
     barChart.margin({top: 50, left: 50, right: 50, bottom: 20});
-    chartContainer.datum(data).call(barChart);
+
+    const drawChart = () => {
+      dataIndex += 1;
+      if (data[dataIndex]) {
+        chartContainer.datum(data[dataIndex]).call(barChart);
+      } else {
+        window.clearInterval(chartTimer);
+      }
+    };
+
+    const chartTimer = window.setInterval(drawChart, duration * 1.25);
+
+    drawChart();
   </script>
 </body>
 </html>

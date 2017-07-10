@@ -8,11 +8,17 @@ export const baseConfig = {
   },
 
   transitionDuration: 600,
+  transitionStepSeed: 40,
   width: 100,
   xAccessor: d => d.x,
+  xAxis: void 0,
+  xAxisShow: true,
+  xDomain: void 0,
   xScaleType: 'time',
   yAccessor: d => d.y,
-  yMax: void 0,
+  yAxis: void 0,
+  yAxisShow: true,
+  yDomain: void 0,
   yScaleType: 'linear',
 }
 

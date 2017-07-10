@@ -1,0 +1,4 @@
+// Used to get Jest working
+{
+  "presets": ["es2015", "flow"]
+}

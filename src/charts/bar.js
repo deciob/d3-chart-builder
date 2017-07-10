@@ -18,6 +18,11 @@ import {
   barConfig
 } from '../config';
 
+import {
+  xAxis,
+  yAxis,
+} from '../components/axis';
+
 import bar from '../components/bar';
 import helpers from '../helpers';
 import wrapper from '../components/wrapper';
@@ -40,45 +45,26 @@ export default function(): (Array<mixed>) => mixed  {
     // $FlowNoD3
     const data = selection.datum();
     const state = {};
+    const minX = min(data, config.xAccessor);
+    const maxX = max(data, config.xAccessor);
+    const minY = min(data, config.yAccessor);
+    const maxY = max(data, config.yAccessor);
 
-    state.xMin = config.xMin !== undefined ?
-      config.xMin :
-      min(data, config.xAccessor);
+    switch (config.xScaleType) {
+      case 'ordinal':
+        state.xDomain = config.xDomain !== undefined ? config.xDomain : data.map(config.xAccessor);
+        state.xScale = helpers.getOrdinalScale(config, state.xDomain);
+        break;
+    }
 
-    state.yMin = config.yMin !== undefined ?
-      config.yMin :
-      min(data, config.yAccessor);
-
-    state.xMax = config.xMax !== undefined ?
-      config.xMax :
-      max(data, config.xAccessor);
-
-    state.yMax = config.yMax !== undefined ?
-      config.yMax :
-      max(data, config.yAccessor);
+    state.yDomain = config.yDomain !== undefined ? config.yDomain : [0, maxY];
+    state.yScale = helpers.getQuantitativeScale(config, [0, maxY], [config.height, 0], data);
 
     state.transition = transition().duration(config.transitionDuration);
+    state.transitionDelay = (d, i) => i * config.transitionStepSeed;
 
-    state.transitionDelay = (d, i) => i * 40;
-
-    if (config.xScale) {
-      state.xScale = config.xScale;
-    } else {
-      switch (config.xScaleType) {
-        case 'ordinal':
-          state.xScale = helpers.getOrdinalScale(config, data);
-          break;
-        default:
-          state.xScale = helpers.getOrdinalScale(config, data);
-      }
-    }
-
-    if (config.yScale) {
-      state.yScale = config.yScale;
-    } else {
-      state.yScale = helpers.getQuantitativeScale(config, [0, state.yMax], data);
-    }
-
+    const xAxisComponent = xAxis(config, state, wrapperComponent);
+    const yAxisComponent = yAxis(config, state, wrapperComponent);
     const barComponent = bar(config, state, wrapperComponent, data);
   }
 

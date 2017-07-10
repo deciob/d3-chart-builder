@@ -32,19 +32,25 @@ export default function(
       .attr('class', 'bars-g');
   }
 
+  // UPDATE
   const bars = barsG
       .selectAll('.bar')
-      .data(data, yAccessor);
+      .data(data, xAccessor);
+  // EXIT
   bars.exit()
       .remove();
+  // ENTER
   bars.enter()
     .append('rect')
       .attr('class', 'bar')
+      .attr('x', d => xScale(xAccessor(d)))
+      .attr('width', xScale.bandwidth())
       .attr('y', height)
+    // ENTER + UPDATE
     .merge(bars).transition(transition)
       .attr('x', d => xScale(xAccessor(d)))
-      .attr('y', d => yScale(yAccessor(d)))
       .attr('width', xScale.bandwidth())
+      .attr('y', d => yScale(yAccessor(d)))
       .attr('height', d => height - yScale(yAccessor(d)))
       .delay(delay);
 

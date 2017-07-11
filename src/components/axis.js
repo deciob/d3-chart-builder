@@ -31,10 +31,12 @@ function drawAxis(
     }
   }
 
+  /* eslint-disable indent */
   axisG.transition(state.transition)
       .call(axis)
     .selectAll('g')
       .delay(state.transitionDelay);
+  /* eslint-enable indent */
 
   return axisG;
 }

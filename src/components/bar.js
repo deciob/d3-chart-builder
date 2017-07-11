@@ -25,6 +25,7 @@ export default function (
       .attr('class', 'bars-g');
   }
 
+  /* eslint-disable indent */
   // UPDATE
   const bars = barsG
       .selectAll('.bar')
@@ -47,6 +48,7 @@ export default function (
       .attr('y', d => yScale(yAccessor(d)))
       .attr('height', d => height - yScale(yAccessor(d)))
       .delay(delay);
+  /* eslint-enable indent */
 
   return container;
 }

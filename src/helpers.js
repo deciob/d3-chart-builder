@@ -44,9 +44,9 @@ function extend(
 // $FlowNoD3
 function getOrdinalScale(config, domain) {
   return scaleBand()
-      .rangeRound([0, config.width], 0.1)
-      .padding(0.1)
-      .domain(domain);
+    .rangeRound([0, config.width], 0.1)
+    .padding(0.1)
+    .domain(domain);
 }
 
 // $FlowNoD3
@@ -61,8 +61,8 @@ function getQuantitativeScale(config, domain, range) {
   }
 
   return scale
-      .range(range)
-      .domain(domain);
+    .range(range)
+    .domain(domain);
 }
 
 // for each attribute in `state` it sets a getter-setter function on `f`

@@ -27,8 +27,8 @@ function clone(obj: {[key: string]: any}): {[key: string]: any} {
 // extend target object with source object
 // overriding target values with source ones
 function extend(
-  target: {[key: string]: any},
-  source: {[key: string]: any},
+  target: {[key: string]: mixed},
+  source: {[key: string]: mixed},
 ): {[key: string]: any} {
   if (!isObject(target) || !isObject(source)) {
     throw new Error('extend only accepts objects');
@@ -68,7 +68,7 @@ function getQuantitativeScale(scaleType, domain, range) {
 // for each attribute in `state` it sets a getter-setter function on `f`
 function getset(
   f: (Array<mixed>) => mixed,
-  state: {[key: string]: any},
+  state: {[key: string]: mixed},
 ): (Array<mixed>) => mixed {
   entries(state).forEach((o) => {
     /* eslint no-param-reassign:0 */

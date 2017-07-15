@@ -1,7 +1,11 @@
 // @flow
 
+import type {
+  BaseConfig,
+} from '../config';
+
 export default function (
-  config: {[key: string]: any},
+  config: BaseConfig,
   container: Array<mixed>,
 ): Array<mixed> {
   const width = config.width;

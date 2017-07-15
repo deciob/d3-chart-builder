@@ -1,14 +1,16 @@
 // @flow
 
+import type {
+  BaseConfig,
+} from '../config';
+
 export default function (
-  config: {[key: string]: any},
+  config: BaseConfig,
   state: {[key: string]: any},
   container: Array<mixed>,
   data: Array<{[key: string]: number | string}>,
 ): Array<mixed> {
-  const width = config.width;
   const height = config.height;
-  const margin = config.margin;
   const xAccessor = config.xAccessor;
   const yAccessor = config.yAccessor;
   const xScale = state.xScale;

@@ -22,6 +22,11 @@ import bar from '../components/bar';
 import helpers from '../helpers';
 import wrapper from '../components/wrapper';
 
+import type {
+  BarConfig,
+  BaseConfig,
+} from '../config';
+
 
 /**
  Example:
@@ -32,7 +37,7 @@ import wrapper from '../components/wrapper';
  */
 
 export default function (): (Array<mixed>) => mixed {
-  const config = helpers.extend(baseConfig, barConfig);
+  const config: BaseConfig & BarConfig = helpers.extend(baseConfig, barConfig);
 
   function exports(selection: Array<mixed>) {
     const wrapperComponent = wrapper(config, selection);

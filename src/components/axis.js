@@ -5,10 +5,14 @@ import {
   axisLeft,
 } from 'd3-axis';
 
+import type {
+  BaseConfig,
+} from '../config';
+
 
 function drawAxis(
-  config: {[key: string]: any},
-  state: {[key: string]: any},
+  config: BaseConfig,
+  state: {[key: string]: mixed},
   container: Array<mixed>,
   cssClass: string,
   axis: (Array<mixed>) => mixed,
@@ -42,8 +46,8 @@ function drawAxis(
 }
 
 export function xAxis(
-  config: {[key: string]: any},
-  state: {[key: string]: any},
+  config: BaseConfig,
+  state: {[key: string]: mixed},
   container: Array<mixed>,
 ): Array<mixed> {
   if (config.xAxisShow) {
@@ -62,8 +66,8 @@ export function xAxis(
 }
 
 export function yAxis(
-  config: {[key: string]: any},
-  state: {[key: string]: any},
+  config: BaseConfig,
+  state: {[key: string]: mixed},
   container: Array<mixed>,
 ): Array<mixed> {
   if (config.yAxisShow) {

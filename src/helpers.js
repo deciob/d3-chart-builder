@@ -42,17 +42,17 @@ function extend(
 }
 
 // $FlowNoD3
-function getOrdinalScale(config, domain) {
+function getOrdinalScale(domain, range) {
   return scaleBand()
-    .rangeRound([0, config.width], 0.1)
+    .rangeRound(range, 0.1)
     .padding(0.1)
     .domain(domain);
 }
 
 // $FlowNoD3
-function getQuantitativeScale(config, domain, range) {
+function getQuantitativeScale(scaleType, domain, range) {
   let scale;
-  switch (config.quantitativeScaleType) {
+  switch (scaleType) {
     case 'linear':
       scale = scaleLinear();
       break;

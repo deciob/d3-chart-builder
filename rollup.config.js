@@ -4,10 +4,10 @@ import nodeResolve from 'rollup-plugin-node-resolve';
 
 
 export default {
-  dest: "dist/ntc.js",
-  entry: "src/main.js",
-  format: "umd",
-  moduleName: "ntc",
+  dest: 'dist/ntc.js',
+  entry: 'src/main.js',
+  format: 'umd',
+  moduleName: 'ntc',
   plugins: [
     // order counts!
     // first remove flow annotatins, then babel!
@@ -18,7 +18,7 @@ export default {
         'node_modules/**',
         'src/js/**/*.test.js',
       ],
-      presets: [ [ 'es2015', { modules: false } ] ],
+      presets: [['es2015', { modules: false }]],
       plugins: [
         'external-helpers',
         'syntax-object-rest-spread',
@@ -26,7 +26,7 @@ export default {
       ],
     }),
     nodeResolve({
-      // use "jsnext:main" if possible
+      // use 'jsnext:main' if possible
       // – see https://github.com/rollup/rollup/wiki/jsnext:main
       jsnext: true,
     }),

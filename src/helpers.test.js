@@ -25,7 +25,7 @@ test('extend', () => {
     population: 5.2,
     cities: ['Rome', 'Milan'],
     incomeLevel: 'high',
-  }
+  };
 
   // extend target object with source object
   // overriding target values with source ones

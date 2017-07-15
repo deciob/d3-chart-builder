@@ -2,10 +2,10 @@
 <html lang='en'>
 <head>
   <meta charset='utf-8'>
-  <title>barchart</title>
+  <title>barchart horizontal</title>
   <style type="text/css">
     .bar {
-      fill: #feb24c;
+      fill: #fa9fb5;
     }
   </style>
 </head>
@@ -55,6 +55,9 @@
       .width(800)
       .height(600)
       .transitionDuration(duration)
+      .horizontal(true)
+      .xAccessor(d => d.y)
+      .yAccessor(d => d.x)
       .margin({top: 50, left: 50, right: 50, bottom: 20});
 
     const drawChart = () => {

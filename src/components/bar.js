@@ -29,25 +29,45 @@ export default function (
   // UPDATE
   const bars = barsG
       .selectAll('.bar')
-      .data(data, xAccessor);
+      .data(data, config.horizontal ? yAccessor : xAccessor);
   // EXIT
   bars.exit()
       .remove();
-  // ENTER
-  bars.enter()
-    .append('rect')
-      .attr('class', 'bar')
-      .attr('x', d => xScale(xAccessor(d)))
-      .attr('width', xScale.bandwidth())
-      .attr('y', height)
-    // ENTER + UPDATE
-    .merge(bars)
-      .transition(transition)
-      .attr('x', d => xScale(xAccessor(d)))
-      .attr('width', xScale.bandwidth())
-      .attr('y', d => yScale(yAccessor(d)))
-      .attr('height', d => height - yScale(yAccessor(d)))
-      .delay(delay);
+
+
+  if (config.horizontal) {
+    // Horizontal Bars
+    // ENTER
+    bars.enter()
+      .append('rect')
+        .attr('class', 'bar')
+        .attr('x', 0)
+        .attr('y', d => yScale(yAccessor(d)))
+      // ENTER + UPDATE
+      .merge(bars)
+        .transition(transition)
+        .attr('width', d => xScale(xAccessor(d)))
+        .attr('y', d => yScale(yAccessor(d)))
+        .attr('height', yScale.bandwidth())
+        .delay(delay);
+  } else {
+    // Vertical bars
+    // ENTER
+    bars.enter()
+      .append('rect')
+        .attr('class', 'bar')
+        .attr('x', d => xScale(xAccessor(d)))
+        .attr('width', xScale.bandwidth())
+        .attr('y', height)
+      // ENTER + UPDATE
+      .merge(bars)
+        .transition(transition)
+        .attr('x', d => xScale(xAccessor(d)))
+        .attr('width', xScale.bandwidth())
+        .attr('y', d => yScale(yAccessor(d)))
+        .attr('height', d => height - yScale(yAccessor(d)))
+        .delay(delay);
+  }
   /* eslint-enable indent */
 
   return container;

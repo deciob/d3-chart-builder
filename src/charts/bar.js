@@ -39,24 +39,37 @@ export default function (): (Array<mixed>) => mixed {
     // $FlowNoD3
     const data = selection.datum();
     const state = {};
-    // const minX = min(data, config.xAccessor);
-    // const maxX = max(data, config.xAccessor);
-    // const minY = min(data, config.yAccessor);
-    const maxY = max(data, config.yAccessor);
+    const quantitativeMax = max(
+      data,
+      config.horizontal ? config.xAccessor : config.yAccessor,
+    );
 
-    switch (config.xScaleType) {
-      case 'ordinal':
-        state.xDomain = config.xDomain !== undefined ?
-          config.xDomain :
-          data.map(config.xAccessor);
-        state.xScale = helpers.getOrdinalScale(config, state.xDomain);
-        break;
-      default:
-        break;
+    state.xRange = [0, config.width];
+    state.yRange = [0, config.height];
+
+    if (config.horizontal) {
+      state.xDomain = config.xDomain !== undefined ?
+        config.xDomain : [0, quantitativeMax];
+      state.yDomain = config.yDomain !== undefined ?
+        config.yDomain : data.map(config.yAccessor);
+      state.xScale = helpers.getQuantitativeScale(
+        config.quantitativeScaleType,
+        state.xDomain,
+        state.xRange,
+      );
+      state.yScale = helpers.getOrdinalScale(state.yDomain, state.yRange);
+    } else {
+      state.xDomain = config.xDomain !== undefined ?
+        config.xDomain : data.map(config.xAccessor);
+      state.yDomain = config.yDomain !== undefined ?
+        config.yDomain : [quantitativeMax, 0];
+      state.xScale = helpers.getOrdinalScale(state.xDomain, state.xRange);
+      state.yScale = helpers.getQuantitativeScale(
+        config.quantitativeScaleType,
+        state.yDomain,
+        state.yRange,
+      );
     }
-
-    state.yDomain = config.yDomain !== undefined ? config.yDomain : [0, maxY];
-    state.yScale = helpers.getQuantitativeScale(config, [0, maxY], [config.height, 0]);
 
     state.transition = transition().duration(config.transitionDuration);
     state.transitionDelay = (d, i) => i * config.transitionStepSeed;

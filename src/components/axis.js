@@ -41,39 +41,42 @@ function drawAxis(
   return axisG;
 }
 
-export const xAxis = function (
-  config: {[key: string]: any},
-  state: {[key: string]: any},
-  container: Array<mixed>
-): Array<mixed> {
-  const height = config.height;
-
-  if (config.xAxisShow) {
-    if (config.xAxis) {
-      return drawAxis(config, state, container, 'x-axis-g', config.xAxis);
-    } else {
-      const axis = axisBottom(state.xScale);
-      return drawAxis(config, state, container, 'x-axis-g', axis);
-    }
-  }
-
-  return [];
-};
-
-export const yAxis = function (
+export function xAxis(
   config: {[key: string]: any},
   state: {[key: string]: any},
   container: Array<mixed>,
 ): Array<mixed> {
-  const height = config.height;
+  if (config.xAxisShow) {
+    let axis;
 
-  if (config.yAxisShow) {
-    if (config.yAxis) {
-      return drawAxis(config, state, container, 'y-axis-g', config.yAxis);
+    if (config.xAxis) {
+      axis = config.xAxis;
+    } else {
+      axis = axisBottom(state.xScale);
     }
-    const axis = axisLeft(state.yScale);
+
+    return drawAxis(config, state, container, 'x-axis-g', axis);
+  }
+
+  return [];
+}
+
+export function yAxis(
+  config: {[key: string]: any},
+  state: {[key: string]: any},
+  container: Array<mixed>,
+): Array<mixed> {
+  if (config.yAxisShow) {
+    let axis;
+
+    if (config.yAxis) {
+      axis = config.yAxis;
+    } else {
+      axis = axisLeft(state.yScale);
+    }
+
     return drawAxis(config, state, container, 'y-axis-g', axis);
   }
 
   return [];
-};
+}

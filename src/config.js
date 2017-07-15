@@ -14,15 +14,13 @@ export const baseConfig = {
   xAxis: undefined,
   xAxisShow: true,
   xDomain: undefined,
-  xScaleType: 'time',
   yAccessor: d => d.y,
   yAxis: undefined,
   yAxisShow: true,
   yDomain: undefined,
-  yScaleType: 'linear',
 };
 
 export const barConfig = {
   horizontal: false,
-  xScaleType: 'ordinal',
+  quantitativeScaleType: 'linear',
 };

@@ -3,6 +3,10 @@
     "airbnb/base",
     "plugin:flowtype/recommended"
   ],
+  "globals": {
+    "test": true,
+    "expect": true
+  },
   "parser": "babel-eslint",
   "plugins": [
     "flowtype"

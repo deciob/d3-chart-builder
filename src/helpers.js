@@ -1,6 +1,10 @@
 // @flow
 
 import {
+  min,
+} from 'd3-array';
+
+import {
   entries,
 } from 'd3-collection';
 
@@ -8,6 +12,10 @@ import {
   scaleBand,
   scaleLinear,
 } from 'd3-scale';
+
+import type {
+  BarLayouts,
+} from './config';
 
 
 function isObject<T>(o: T): boolean {
@@ -41,8 +49,18 @@ function extend(
   return targetClone;
 }
 
+function getDefaultStackedKeys(
+  layout: BarLayouts,
+  data: {[string]: number | string}[],
+): string[] {
+  if (layout === 'horizontal') {
+    return Object.keys(data[0]).filter(k => k !== 'y');
+  }
+  return Object.keys(data[0]).filter(k => k !== 'x');
+}
+
 // $FlowNoD3
-function getOrdinalScale(domain, range) {
+function getOrdinalBandScale(domain, range) {
   return scaleBand()
     .rangeRound(range, 0.1)
     .padding(0.1)
@@ -85,11 +103,23 @@ function getset(
   return f;
 }
 
+function stackMax<T>(serie: Array<T>): T {
+  return min(serie, d => d[1]);
+}
+
+function stackMin<T>(serie: Array<T>): T {
+  return min(serie, d => d[0]);
+}
+
+
 export default {
   clone,
   extend,
-  getOrdinalScale,
+  getDefaultStackedKeys,
+  getOrdinalBandScale,
   getQuantitativeScale,
   getset,
   isObject,
+  stackMax,
+  stackMin,
 };

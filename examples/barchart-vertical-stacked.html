@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+  <title>barchart</title>
+  <style type="text/css">
+    .bar {
+      fill: #feb24c;
+    }
+  </style>
+</head>
+<body>
+  <div class='wrapper'>
+    <div id='chart'></div>
+  </div>
+  <script src='../dist/ntc.js'></script>
+  <script>
+    const barChart = ntc.bar();
+    const data = [
+      {x: "Q1-2016", apples: 3840, bananas: 1920, cherries: -1960, dates: -400},
+      {x: "Q2-2016", apples: 1600, bananas: 1440, cherries: -960, dates: -400},
+      {x: "Q3-2016", apples:  640, bananas:  960, cherries: -640, dates: -600},
+      {x: "Q4-2016", apples:  320, bananas:  480, cherries: -640, dates: -400}
+    ];
+    const chartContainer = ntc.select('#chart');
+    const duration = 750;
+    let dataIndex = 0;
+
+    barChart
+      .barLayout('verticalStacked')
+      .width(800)
+      .height(600)
+      .divergin(true)
+      .transitionDuration(duration)
+      .margin({top: 50, left: 50, right: 50, bottom: 20});
+
+    chartContainer.datum(data).call(barChart);
+
+    drawChart();
+  </script>
+</body>
+</html>

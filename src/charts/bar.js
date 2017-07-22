@@ -2,7 +2,20 @@
 
 import {
   max,
+  min,
 } from 'd3-array';
+
+import {
+  scaleLinear,
+  scaleOrdinal,
+  schemeCategory10,
+} from 'd3-scale';
+
+import {
+  stack,
+  stackOffsetDiverging,
+  stackOrderAscending,
+} from 'd3-shape';
 
 import {
   transition,
@@ -24,7 +37,9 @@ import wrapper from '../components/wrapper';
 
 import type {
   BarConfig,
+  BarLayouts,
   BaseConfig,
+  State,
 } from '../config';
 
 
@@ -43,41 +58,116 @@ export default function (): (Array<mixed>) => mixed {
     const wrapperComponent = wrapper(config, selection);
     // $FlowNoD3
     const data = selection.datum();
-    const state = {};
-    const quantitativeMax = max(
-      data,
-      config.horizontal ? config.xAccessor : config.yAccessor,
-    );
 
-    state.xRange = [0, config.width];
-    state.yRange = [0, config.height];
+    const state: State = ((layout: BarLayouts): State => {
+      const xRange = [0, config.width];
+      const yRange = [0, config.height];
+      const tr = transition().duration(config.transitionDuration);
+      const transitionDelay = (d, i) => i * config.transitionStepSeed;
 
-    if (config.horizontal) {
-      state.xDomain = config.xDomain !== undefined ?
-        config.xDomain : [0, quantitativeMax];
-      state.yDomain = config.yDomain !== undefined ?
-        config.yDomain : data.map(config.yAccessor);
-      state.xScale = helpers.getQuantitativeScale(
-        config.quantitativeScaleType,
-        state.xDomain,
-        state.xRange,
-      );
-      state.yScale = helpers.getOrdinalScale(state.yDomain, state.yRange);
-    } else {
-      state.xDomain = config.xDomain !== undefined ?
-        config.xDomain : data.map(config.xAccessor);
-      state.yDomain = config.yDomain !== undefined ?
-        config.yDomain : [quantitativeMax, 0];
-      state.xScale = helpers.getOrdinalScale(state.xDomain, state.xRange);
-      state.yScale = helpers.getQuantitativeScale(
-        config.quantitativeScaleType,
-        state.yDomain,
-        state.yRange,
-      );
-    }
+      switch (layout) {
+        case 'horizontal': {
+          const quantitativeMax = max(data, config.xAccessor);
+          const xDomain = config.xDomain !== undefined ?
+            config.xDomain : [0, quantitativeMax];
+          const yDomain = config.yDomain !== undefined ?
+            config.yDomain : data.map(config.yAccessor);
+          const xScale = helpers.getQuantitativeScale(
+            config.quantitativeScaleType,
+            xDomain,
+            xRange,
+          );
+          const yScale = helpers.getOrdinalBandScale(yDomain, yRange);
+          const zScale = undefined;
+          return {
+            transition: tr,
+            transitionDelay,
+            xDomain,
+            xRange,
+            xScale,
+            yRange,
+            yDomain,
+            yScale,
+            zScale,
+          };
+        }
+        case 'vertical': {
+          const quantitativeMax = max(data, config.yAccessor);
+          const xDomain = config.xDomain !== undefined ?
+            config.xDomain : data.map(config.xAccessor);
+          const yDomain = config.yDomain !== undefined ?
+            config.yDomain : [quantitativeMax, 0];
+          const xScale = helpers.getOrdinalBandScale(xDomain, xRange);
+          const yScale = helpers.getQuantitativeScale(
+            config.quantitativeScaleType,
+            yDomain,
+            yRange,
+          );
+          const zScale = undefined;
+          return {
+            transition: tr,
+            transitionDelay,
+            xDomain,
+            xRange,
+            xScale,
+            yRange,
+            yDomain,
+            yScale,
+            zScale,
+          };
+        }
+        case 'verticalStacked': {
+          const series = stack()
+            .keys(
+              config.stackedKeys ||
+              helpers.getDefaultStackedKeys(config.barLayout, data))
+            .offset(
+              config.divergin ?
+                stackOffsetDiverging :
+                stackOrderAscending,
+            )(data);
 
-    state.transition = transition().duration(config.transitionDuration);
-    state.transitionDelay = (d, i) => i * config.transitionStepSeed;
+          const xDomain = config.xDomain !== undefined ?
+            config.xDomain : data.map(config.xAccessor);
+          const yDomain = config.yDomain !== undefined ?
+            config.yDomain : [
+              min(series, helpers.stackMin),
+              max(series, helpers.stackMax),
+            ];
+
+          const xScale = helpers.getOrdinalBandScale(xDomain, xRange);
+          const yScale = scaleLinear()
+            .domain(yDomain)
+            .rangeRound([config.height - config.margin.bottom, config.margin.top]);
+          const zScale = scaleOrdinal(schemeCategory10);
+          return {
+            transition: tr,
+            transitionDelay,
+            xDomain,
+            xRange,
+            xScale,
+            yRange,
+            yDomain,
+            yScale,
+            zScale,
+          };
+        }
+        default:
+          return {
+            transition: tr,
+            transitionDelay,
+            xDomain: [0, 0],
+            xRange,
+            xScale: () => undefined,
+            yRange,
+            yDomain: [0, 0],
+            yScale: () => undefined,
+            zScale: undefined,
+          };
+      }
+    })(config.barLayout);
+
+    // state.zScale = scaleOrdinal(schemeCategory10);
 
     const xAxisComponent = xAxis(config, state, wrapperComponent);
     const yAxisComponent = yAxis(config, state, wrapperComponent);

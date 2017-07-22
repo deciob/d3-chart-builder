@@ -7,12 +7,13 @@ import {
 
 import type {
   BaseConfig,
+  State,
 } from '../config';
 
 
 function drawAxis(
   config: BaseConfig,
-  state: {[key: string]: mixed},
+  state: State,
   container: Array<mixed>,
   cssClass: string,
   axis: (Array<mixed>) => mixed,
@@ -47,7 +48,7 @@ function drawAxis(
 
 export function xAxis(
   config: BaseConfig,
-  state: {[key: string]: mixed},
+  state: State,
   container: Array<mixed>,
 ): Array<mixed> {
   if (config.xAxisShow) {
@@ -67,7 +68,7 @@ export function xAxis(
 
 export function yAxis(
   config: BaseConfig,
-  state: {[key: string]: mixed},
+  state: State,
   container: Array<mixed>,
 ): Array<mixed> {
   if (config.yAxisShow) {

@@ -1,5 +1,17 @@
 // @flow
 
+export type State = {|
+  transition: (any) => any,
+  transitionDelay: ({[key: string]: mixed}, number) => number,
+  xDomain: [number, number],
+  xRange: [number, number],
+  xScale: (any) => any,
+  yRange: [number, number],
+  yDomain: [number, number],
+  yScale: (any) => any,
+  zScale: void | (any) => any,
+|};
+
 export type BaseConfig = {
   height: number,
   margin: {
@@ -43,12 +55,24 @@ export const baseConfig: BaseConfig = {
 };
 
 
+export type BarLayouts =
+  | 'horizontal'
+  | 'vertical'
+  | 'verticalStacked';
+
+
 export type BarConfig = {
-  horizontal: boolean,
+  barLayout: BarLayouts,
+  divergin: boolean,
   quantitativeScaleType: string,
+  stack: void | (any) => any,
+  stackedKeys: ?string[],
 };
 
 export const barConfig: BarConfig = {
-  horizontal: false,
+  barLayout: 'vertical',
+  divergin: false,
   quantitativeScaleType: 'linear',
+  stack: undefined,
+  stackedKeys: undefined,
 };

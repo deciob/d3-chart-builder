@@ -1,6 +1,7 @@
 // @flow
 
 import type {
+  BarLayouts,
   BaseConfig,
 } from '../config';
 
@@ -36,8 +37,7 @@ export default function (
   bars.exit()
       .remove();
 
-
-  if (config.horizontal) {
+  if (config.barLayout === 'horizontal') {
     // Horizontal Bars
     // ENTER
     bars.enter()

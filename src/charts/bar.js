@@ -58,6 +58,7 @@ export default function (): (Array<mixed>) => mixed {
     const wrapperComponent = wrapper(config, selection);
     // $FlowNoD3
     const data = selection.datum();
+    let barData;
 
     const state: State = ((layout: BarLayouts): State => {
       const xRange = [0, config.width];
@@ -79,14 +80,15 @@ export default function (): (Array<mixed>) => mixed {
           );
           const yScale = helpers.getOrdinalBandScale(yDomain, yRange);
           const zScale = undefined;
+          barData = data;
           return {
             transition: tr,
             transitionDelay,
             xDomain,
             xRange,
             xScale,
-            yRange,
             yDomain,
+            yRange,
             yScale,
             zScale,
           };
@@ -104,29 +106,28 @@ export default function (): (Array<mixed>) => mixed {
             yRange,
           );
           const zScale = undefined;
+          barData = data;
           return {
             transition: tr,
             transitionDelay,
             xDomain,
             xRange,
             xScale,
-            yRange,
             yDomain,
+            yRange,
             yScale,
             zScale,
           };
         }
         case 'verticalStacked': {
+          const keys = config.stackedKeys ||
+            helpers.getDefaultStackedKeys(config.barLayout, data);
+          const offset = config.divergin ?
+            stackOffsetDiverging :
+            stackOrderAscending;
           const series = stack()
-            .keys(
-              config.stackedKeys ||
-              helpers.getDefaultStackedKeys(config.barLayout, data))
-            .offset(
-              config.divergin ?
-                stackOffsetDiverging :
-                stackOrderAscending,
-            )(data);
-
+            .keys(keys)
+            .offset(offset)(data);
           const xDomain = config.xDomain !== undefined ?
             config.xDomain : data.map(config.xAccessor);
           const yDomain = config.yDomain !== undefined ?
@@ -134,12 +135,12 @@ export default function (): (Array<mixed>) => mixed {
               min(series, helpers.stackMin),
               max(series, helpers.stackMax),
             ];
-
           const xScale = helpers.getOrdinalBandScale(xDomain, xRange);
           const yScale = scaleLinear()
             .domain(yDomain)
             .rangeRound([config.height - config.margin.bottom, config.margin.top]);
           const zScale = scaleOrdinal(schemeCategory10);
+          barData = series;
           return {
             transition: tr,
             transitionDelay,
@@ -153,6 +154,7 @@ export default function (): (Array<mixed>) => mixed {
           };
         }
         default:
+          barData = data;
           return {
             transition: tr,
             transitionDelay,
@@ -167,11 +169,10 @@ export default function (): (Array<mixed>) => mixed {
       }
     })(config.barLayout);
 
-    // state.zScale = scaleOrdinal(schemeCategory10);
 
     const xAxisComponent = xAxis(config, state, wrapperComponent);
     const yAxisComponent = yAxis(config, state, wrapperComponent);
-    const barComponent = bar(config, state, wrapperComponent, data);
+    const barComponent = bar(config, state, wrapperComponent, barData);
   }
 
   helpers.getset(exports, config);

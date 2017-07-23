@@ -28,6 +28,7 @@
 
     barChart
       .barLayout('verticalStacked')
+      .divergin(true)
       .width(800)
       .height(600)
       .divergin(true)
@@ -35,8 +36,6 @@
       .margin({top: 50, left: 50, right: 50, bottom: 20});
 
     chartContainer.datum(data).call(barChart);
-
-    drawChart();
   </script>
 </body>
 </html>

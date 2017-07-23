@@ -1,15 +1,18 @@
 // @flow
 
 import type {
+  BarConfig,
   BarLayouts,
   BaseConfig,
+  D3GenericDataAccessor,
 } from '../config';
 
+// TODO data should be of type Array<{[key: string]: number | string}> or nested!
 export default function (
-  config: BaseConfig,
+  config: BaseConfig & BarConfig,
   state: {[key: string]: any},
   container: Array<mixed>,
-  data: Array<{[key: string]: number | string}>,
+  data: any,
 ): Array<mixed> {
   const height = config.height;
   const xAccessor = config.xAccessor;
@@ -18,6 +21,7 @@ export default function (
   const yScale = state.yScale;
   const transition = state.transition;
   const delay = state.transitionDelay;
+  const zScale = state.zScale;
 
   // $FlowNoD3
   let barsG = container.select('.bars-g');
@@ -28,17 +32,33 @@ export default function (
       .attr('class', 'bars-g');
   }
 
-  /* eslint-disable indent */
-  // UPDATE
-  const bars = barsG
-      .selectAll('.bar')
-      .data(data, config.horizontal ? yAccessor : xAccessor);
-  // EXIT
-  bars.exit()
-      .remove();
+  const dataAccessor: D3GenericDataAccessor =
+    ((layout: BarLayouts): D3GenericDataAccessor => {
+      switch (layout) {
+        case 'horizontal': {
+          return yAccessor;
+        }
+        case 'vertical': {
+          return xAccessor;
+        }
+        case 'verticalStacked': {
+          return xAccessor;
+        }
+        default:
+          return xAccessor;
+      }
+    })(config.barLayout);
 
+  /* eslint-disable indent */
   if (config.barLayout === 'horizontal') {
     // Horizontal Bars
+    // UPDATE
+    const bars = barsG
+        .selectAll('.bar')
+        .data(data, dataAccessor);
+    // EXIT
+    bars.exit()
+        .remove();
     // ENTER
     bars.enter()
       .append('rect')
@@ -52,8 +72,47 @@ export default function (
         .attr('y', d => yScale(yAccessor(d)))
         .attr('height', yScale.bandwidth())
         .delay(delay);
+  } else if (config.barLayout === 'verticalStacked') {
+    // UPDATE
+    const bars = barsG
+        .selectAll('.bars-g-nested')
+        .data(data, dataAccessor);
+    // EXIT
+    bars.exit()
+        .remove();
+    bars.enter()
+      .append('g')
+        .attr('fill', d => zScale(d.key))
+        .attr('class', 'bars-g-nested')
+      .selectAll('.bar')
+        .data(d => d);
+        .enter()
+          .append('rect')
+          .attr('class', 'bar')
+          .attr('x', 0)
+          .attr('y', d => yScale(d[1]))
+
+    // svg.append("g")
+    //   .selectAll("g")
+    //   .data(series)
+    //   .enter().append("g")
+    //     .attr("fill", function(d) { return z(d.key); })
+    //   .selectAll("rect")
+    //   .data(function(d) { return d; })
+    //   .enter().append("rect")
+    //     .attr("width", x.bandwidth)
+    //     .attr("x", function(d) { return x(d.data.month); })
+    //     .attr("y", function(d) { return y(d[1]); })
+    //     .attr("height", function(d) { return y(d[0]) - y(d[1]); })
   } else {
     // Vertical bars
+    // UPDATE
+    const bars = barsG
+        .selectAll('.bar')
+        .data(data, dataAccessor);
+    // EXIT
+    bars.exit()
+        .remove();
     // ENTER
     bars.enter()
       .append('rect')
@@ -71,6 +130,7 @@ export default function (
         .delay(delay);
   }
   /* eslint-enable indent */
+
 
   return container;
 }

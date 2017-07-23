@@ -1,6 +1,7 @@
 // @flow
 
 import {
+  max,
   min,
 } from 'd3-array';
 
@@ -104,7 +105,7 @@ function getset(
 }
 
 function stackMax<T>(serie: Array<T>): T {
-  return min(serie, d => d[1]);
+  return max(serie, d => d[1]);
 }
 
 function stackMin<T>(serie: Array<T>): T {

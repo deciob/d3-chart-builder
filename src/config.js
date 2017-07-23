@@ -1,5 +1,8 @@
 // @flow
 
+export type D3GenericDataAccessor =
+  ({[string]: number | string}) => number | string
+
 export type State = {|
   transition: (any) => any,
   transitionDelay: ({[key: string]: mixed}, number) => number,
@@ -12,7 +15,7 @@ export type State = {|
   zScale: void | (any) => any,
 |};
 
-export type BaseConfig = {
+export type BaseConfig = {|
   height: number,
   margin: {
     top: number,
@@ -23,15 +26,15 @@ export type BaseConfig = {
   transitionDuration: number,
   transitionStepSeed: number,
   width: number,
-  xAccessor: ({[string]: number | string}) => number | string,
+  xAccessor: D3GenericDataAccessor,
   xAxis: void | (any) => any,
   xAxisShow: boolean,
   xDomain: void | [number, number],
-  yAccessor: ({[string]: number | string}) => number | string,
+  yAccessor: D3GenericDataAccessor,
   yAxis: void | (any) => any,
   yAxisShow: boolean,
   yDomain: void | [number, number],
-};
+|};
 
 export const baseConfig: BaseConfig = {
   height: 100,
@@ -61,13 +64,13 @@ export type BarLayouts =
   | 'verticalStacked';
 
 
-export type BarConfig = {
+export type BarConfig = {|
   barLayout: BarLayouts,
   divergin: boolean,
   quantitativeScaleType: string,
   stack: void | (any) => any,
   stackedKeys: ?string[],
-};
+|};
 
 export const barConfig: BarConfig = {
   barLayout: 'vertical',

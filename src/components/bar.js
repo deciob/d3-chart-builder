@@ -1,11 +1,17 @@
 // @flow
 
+
+import {
+  select,
+} from 'd3-selection';
+
 import type {
   BarConfig,
   BarLayouts,
   BaseConfig,
   D3GenericDataAccessor,
 } from '../config';
+
 
 // TODO data should be of type Array<{[key: string]: number | string}> or nested!
 export default function (
@@ -64,43 +70,44 @@ export default function (
     // EXIT
     nestedBarsG.exit()
         .remove();
+    // ENTER
     nestedBarsG.enter()
       .append('g')
         .attr('class', 'bars-g-nested')
-        .attr('fill', d => zScale(d.key));
+        .attr('fill', d => zScale(d.key))
 
+    .selectAll('rect')
+    .data(function(d) {
+      console.log(d);
+      return d;
+    })
+      .enter().append('rect')
+      .attr('width', xScale.bandwidth)
+      .attr('x', function(d) { return xScale(d.data.x); })
+      .attr('y', function(d) { return yScale(d[1]); })
+      .attr('height', function(d) { return yScale(d[0]) - yScale(d[1]); })
 
-
-    const bars = nestedBarsG
-        .selectAll('.bar')
-        .data(d => d);
-
-    console.log(nestedBarsG, bars);
-
-    // EXIT
-    bars.exit()
-        .remove();
-    // ENTER
-    bars.enter()
-      .append('rect')
-        .attr('class', 'bar')
-        .attr('x', d => xScale(xAccessor(d)))
-        .attr('width', xScale.bandwidth())
-        .attr('y', height)
-      // ENTER + UPDATE
-      .merge(bars)
-        .transition(transition)
-        .attr('x', d => xScale(xAccessor(d)))
-        .attr('width', xScale.bandwidth())
-        .attr('y', d => yScale(d[1]))
-        .attr('height', d => yScale(d[0]) - yScale(d[1]))
-        .delay(delay);
-
-        // .attr('class', 'bars-g-nested')
-        // .attr('x', 0)
-        // .attr('width', xScale.bandwidth())
-        // .attr('y', d => yScale(d[1]))
-        // .attr('height', d => height - yScale(yAccessor(d)));
+    // const bars = nestedBarsG
+    //     .selectAll('.bar')
+    //     .data(d => d);
+    // // EXIT
+    // bars.exit()
+    //     .remove();
+    // // ENTER
+    // bars.enter()
+    //   .append('rect')
+    //     .attr('class', 'bar')
+    //     .attr('x', d => xScale(xAccessor(d)))
+    //     .attr('width', xScale.bandwidth())
+    //     .attr('y', height)
+    //   // ENTER + UPDATE
+    //   .merge(bars)
+    //     .transition(transition)
+    //     .attr('x', d => xScale(xAccessor(d)))
+    //     .attr('width', xScale.bandwidth())
+    //     .attr('y', d => yScale(d[1]))
+    //     .attr('height', d => yScale(d[0]) - yScale(d[1]))
+    //     .delay(delay);
   } else if (config.barLayout === 'vertical') {
     // Vertical bars
     // UPDATE

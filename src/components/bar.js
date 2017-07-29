@@ -17,6 +17,7 @@ export default function (
   const height = config.height;
   const xAccessor = config.xAccessor;
   const yAccessor = config.yAccessor;
+  // const zAccessor = config.zAccessor;
   const xScale = state.xScale;
   const yScale = state.yScale;
   const transition = state.transition;
@@ -32,30 +33,13 @@ export default function (
       .attr('class', 'bars-g');
   }
 
-  const dataAccessor: D3GenericDataAccessor =
-    ((layout: BarLayouts): D3GenericDataAccessor => {
-      switch (layout) {
-        case 'horizontal': {
-          return yAccessor;
-        }
-        case 'vertical': {
-          return xAccessor;
-        }
-        case 'verticalStacked': {
-          return xAccessor;
-        }
-        default:
-          return xAccessor;
-      }
-    })(config.barLayout);
-
   /* eslint-disable indent */
   if (config.barLayout === 'horizontal') {
     // Horizontal Bars
     // UPDATE
     const bars = barsG
         .selectAll('.bar')
-        .data(data, dataAccessor);
+        .data(data, yAccessor);
     // EXIT
     bars.exit()
         .remove();
@@ -74,42 +58,55 @@ export default function (
         .delay(delay);
   } else if (config.barLayout === 'verticalStacked') {
     // UPDATE
-    const bars = barsG
+    const nestedBarsG = barsG
         .selectAll('.bars-g-nested')
-        .data(data, dataAccessor);
+        .data(data);
+    // EXIT
+    nestedBarsG.exit()
+        .remove();
+    nestedBarsG.enter()
+      .append('g')
+        .attr('class', 'bars-g-nested')
+        .attr('fill', d => zScale(d.key));
+
+
+
+    const bars = nestedBarsG
+        .selectAll('.bar')
+        .data(d => d);
+
+    console.log(nestedBarsG, bars);
+
     // EXIT
     bars.exit()
         .remove();
+    // ENTER
     bars.enter()
-      .append('g')
-        .attr('fill', d => zScale(d.key))
-        .attr('class', 'bars-g-nested')
-      .selectAll('.bar')
-        .data(d => d);
-        .enter()
-          .append('rect')
-          .attr('class', 'bar')
-          .attr('x', 0)
-          .attr('y', d => yScale(d[1]))
+      .append('rect')
+        .attr('class', 'bar')
+        .attr('x', d => xScale(xAccessor(d)))
+        .attr('width', xScale.bandwidth())
+        .attr('y', height)
+      // ENTER + UPDATE
+      .merge(bars)
+        .transition(transition)
+        .attr('x', d => xScale(xAccessor(d)))
+        .attr('width', xScale.bandwidth())
+        .attr('y', d => yScale(d[1]))
+        .attr('height', d => yScale(d[0]) - yScale(d[1]))
+        .delay(delay);
 
-    // svg.append("g")
-    //   .selectAll("g")
-    //   .data(series)
-    //   .enter().append("g")
-    //     .attr("fill", function(d) { return z(d.key); })
-    //   .selectAll("rect")
-    //   .data(function(d) { return d; })
-    //   .enter().append("rect")
-    //     .attr("width", x.bandwidth)
-    //     .attr("x", function(d) { return x(d.data.month); })
-    //     .attr("y", function(d) { return y(d[1]); })
-    //     .attr("height", function(d) { return y(d[0]) - y(d[1]); })
-  } else {
+        // .attr('class', 'bars-g-nested')
+        // .attr('x', 0)
+        // .attr('width', xScale.bandwidth())
+        // .attr('y', d => yScale(d[1]))
+        // .attr('height', d => height - yScale(yAccessor(d)));
+  } else if (config.barLayout === 'vertical') {
     // Vertical bars
     // UPDATE
     const bars = barsG
         .selectAll('.bar')
-        .data(data, dataAccessor);
+        .data(data, xAccessor);
     // EXIT
     bars.exit()
         .remove();

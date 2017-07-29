@@ -64,59 +64,41 @@ export default function (
         .delay(delay);
   } else if (config.barLayout === 'verticalStacked') {
     // UPDATE
-    const nestedBarsG = barsG
+    const g = barsG
         .selectAll('.bars-g-nested')
-        .data(data);
+        .data(data, d => d);
     // EXIT
-    nestedBarsG.exit()
+    g.exit()
         .remove();
     // ENTER
-    nestedBarsG.enter()
+    const nestedBarsG = g.enter()
       .append('g')
         .attr('class', 'bars-g-nested')
-        .attr('fill', d => zScale(d.key))
+        .attr('fill', d => zScale(d.key));
 
-    .selectAll('rect')
-    .data(function(d) {
-      console.log(d);
-      return d;
-    })
-      .enter().append('rect')
-      .attr('width', xScale.bandwidth)
-      .attr('x', function(d) { return xScale(d.data.x); })
-      .attr('y', function(d) { return yScale(d[1]); })
-      .attr('height', function(d) { return yScale(d[0]) - yScale(d[1]); })
+    const zeroLevel = yScale(0);
 
-    // const bars = nestedBarsG
-    //     .selectAll('.bar')
-    //     .data(d => d);
-    // // EXIT
-    // bars.exit()
-    //     .remove();
-    // // ENTER
-    // bars.enter()
-    //   .append('rect')
-    //     .attr('class', 'bar')
-    //     .attr('x', d => xScale(xAccessor(d)))
-    //     .attr('width', xScale.bandwidth())
-    //     .attr('y', height)
-    //   // ENTER + UPDATE
-    //   .merge(bars)
-    //     .transition(transition)
-    //     .attr('x', d => xScale(xAccessor(d)))
-    //     .attr('width', xScale.bandwidth())
-    //     .attr('y', d => yScale(d[1]))
-    //     .attr('height', d => yScale(d[0]) - yScale(d[1]))
-    //     .delay(delay);
+    const bars = nestedBarsG.selectAll('rect').data(d => d);
+    bars.exit().remove();
+    bars.enter()
+      .append('rect')
+        .attr('x', d => { return xScale(d.data.x); })
+        .attr('width', xScale.bandwidth)
+        .attr('y', d => zeroLevel)
+      // ENTER + UPDATE
+      .merge(bars)
+        .transition(transition)
+        .attr('x', d => { return xScale(d.data.x); })
+        .attr('width', xScale.bandwidth())
+        .attr('y', d => yScale(d[1]))
+        .attr('height', d => yScale(d[0]) - yScale(d[1]))
+        .delay(delay);
   } else if (config.barLayout === 'vertical') {
     // Vertical bars
     // UPDATE
-    const bars = barsG
-        .selectAll('.bar')
-        .data(data, xAccessor);
+    const bars = barsG.selectAll('.bar').data(data, xAccessor);
     // EXIT
-    bars.exit()
-        .remove();
+    bars.exit().remove();
     // ENTER
     bars.enter()
       .append('rect')

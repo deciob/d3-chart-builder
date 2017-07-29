@@ -66,15 +66,16 @@ export default function (
     // UPDATE
     const g = barsG
         .selectAll('.bars-g-nested')
-        .data(data, d => d);
+        .data(data);
     // EXIT
     g.exit()
         .remove();
-    // ENTER
+    // ENTER + UPDATE
     const nestedBarsG = g.enter()
       .append('g')
         .attr('class', 'bars-g-nested')
-        .attr('fill', d => zScale(d.key));
+        .attr('fill', d => zScale(d.key))
+      .merge(g);
 
     const zeroLevel = yScale(0);
 
@@ -82,13 +83,13 @@ export default function (
     bars.exit().remove();
     bars.enter()
       .append('rect')
-        .attr('x', d => { return xScale(d.data.x); })
+        .attr('x', d => xScale(xAccessor(d.data)))
         .attr('width', xScale.bandwidth)
-        .attr('y', d => zeroLevel)
+        .attr('y', zeroLevel)
       // ENTER + UPDATE
       .merge(bars)
         .transition(transition)
-        .attr('x', d => { return xScale(d.data.x); })
+        .attr('x', d => xScale(xAccessor(d.data)))
         .attr('width', xScale.bandwidth())
         .attr('y', d => yScale(d[1]))
         .attr('height', d => yScale(d[0]) - yScale(d[1]))

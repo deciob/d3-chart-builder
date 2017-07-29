@@ -58,12 +58,12 @@
       .margin({top: 50, left: 50, right: 50, bottom: 20});
 
     const drawChart = () => {
-      dataIndex += 1;
       if (data[dataIndex]) {
         chartContainer.datum(data[dataIndex]).call(barChart);
       } else {
         window.clearInterval(chartTimer);
       }
+      dataIndex += 1;
     };
 
     const chartTimer = window.setInterval(drawChart, duration * 1.25);

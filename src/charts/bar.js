@@ -135,6 +135,7 @@ export default function (): (Array<mixed>) => mixed {
               min(series, helpers.stackMin),
               max(series, helpers.stackMax),
             ];
+          console.log(yDomain);
           const xScale = helpers.getOrdinalBandScale(xDomain, xRange);
           const yScale = scaleLinear()
             .domain(yDomain)

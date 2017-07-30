@@ -34,6 +34,7 @@ export default function (
 
   /* eslint-disable indent */
   if (config.barLayout === 'horizontal') {
+    // TODO: negative values
     const zeroLevel = xScale(0);
     // UPDATE
     const bars = barsG.selectAll('.bar').data(data, yAccessor);
@@ -70,8 +71,22 @@ export default function (
         .transition(transition)
         .attr('x', d => xScale(xAccessor(d)))
         .attr('width', xScale.bandwidth())
-        .attr('y', d => yScale(yAccessor(d)))
-        .attr('height', d => height - yScale(yAccessor(d)))
+        .attr('y', (d) => {
+          const value = yAccessor(d);
+          const scaledValue = yScale(value);
+          if (value >= 0) {
+            return scaledValue;
+          }
+          return scaledValue - (height - zeroLevel);
+        })
+        .attr('height', (d) => {
+          const value = yAccessor(d);
+          const scaledValue = yScale(value);
+          if (value >= 0) {
+            return (height - scaledValue) - (height - zeroLevel);
+          }
+          return (height - scaledValue) + (height - zeroLevel);
+          })
         .delay(delay);
   } else if (config.barLayout === 'verticalStacked') {
     const zeroLevel = yScale(0);

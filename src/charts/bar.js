@@ -69,8 +69,12 @@ export default function (): (Array<mixed>) => mixed {
       switch (layout) {
         case 'horizontal': {
           const quantitativeMax = max(data, config.xAccessor);
+          const quantitativeMin = min(data, config.yAccessor);
           const xDomain = config.xDomain !== undefined ?
-            config.xDomain : [0, quantitativeMax];
+            config.xDomain : [
+              quantitativeMin < 0 ? quantitativeMin : 0,
+              quantitativeMax,
+            ];
           const yDomain = config.yDomain !== undefined ?
             config.yDomain : data.map(config.yAccessor);
           const xScale = helpers.getQuantitativeScale(
@@ -95,10 +99,14 @@ export default function (): (Array<mixed>) => mixed {
         }
         case 'vertical': {
           const quantitativeMax = max(data, config.yAccessor);
+          const quantitativeMin = min(data, config.yAccessor);
           const xDomain = config.xDomain !== undefined ?
             config.xDomain : data.map(config.xAccessor);
           const yDomain = config.yDomain !== undefined ?
-            config.yDomain : [quantitativeMax, 0];
+            config.yDomain : [
+              quantitativeMax,
+              quantitativeMin < 0 ? quantitativeMin : 0,
+            ];
           const xScale = helpers.getOrdinalBandScale(xDomain, xRange);
           const yScale = helpers.getQuantitativeScale(
             config.quantitativeScaleType,
@@ -169,10 +177,9 @@ export default function (): (Array<mixed>) => mixed {
       }
     })(config.barLayout);
 
-
+    const barComponent = bar(config, state, wrapperComponent, barData);
     const xAxisComponent = xAxis(config, state, wrapperComponent);
     const yAxisComponent = yAxis(config, state, wrapperComponent);
-    const barComponent = bar(config, state, wrapperComponent, barData);
   }
 
   helpers.getset(exports, config);

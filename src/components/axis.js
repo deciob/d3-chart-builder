@@ -10,6 +10,9 @@ import type {
   State,
 } from '../config';
 
+// TODO:
+// Axis positioning, see: https://bl.ocks.org/mbostock/b5935342c6d21928111928401e2c8608
+
 
 function drawAxis(
   config: BaseConfig,

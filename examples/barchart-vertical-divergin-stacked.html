@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+  <title>barchart</title>
+  <style type="text/css">
+    .bar {
+      fill: #feb24c;
+    }
+  </style>
+</head>
+<body>
+  <div class='wrapper'>
+    <div id='chart'></div>
+  </div>
+  <script src='../dist/ntc.js'></script>
+  <script>
+    const barChart = ntc.bar();
+    const data = [
+      [
+        {x: "Q1-2016", apples: 100, bananas: 100, cherries: -100, dates: -100},
+        {x: "Q2-2016", apples: 120, bananas: 90, cherries: -120, dates: -200},
+      ],
+      [
+        {x: "Q1-2016", apples: 250, bananas: 100, cherries: -100, dates: -100},
+        {x: "Q2-2016", apples: 120, bananas: 90, cherries: -220, dates: -200},
+      ],
+      [
+        {x: "Q1-2016", apples: 1250, bananas: 100, cherries: -100, dates: -100},
+        {x: "Q2-2016", apples: 120, bananas: 90, cherries: -120, dates: -200},
+        {x: "Q3-2016", apples: 120, bananas: 90, cherries: -120, dates: -200},
+      ],
+    ];
+    const chartContainer = ntc.select('#chart');
+    const duration = 750;
+    let dataIndex = 0;
+
+    barChart
+      .barLayout('verticalStacked')
+      .divergin(true)
+      .width(800)
+      .height(600)
+      .yDomain([-500, 1500])
+      .divergin(true)
+      .transitionDuration(duration)
+      .margin({top: 50, left: 50, right: 50, bottom: 20});
+
+      const drawChart = () => {
+        if (data[dataIndex]) {
+          chartContainer.datum(data[dataIndex]).call(barChart);
+        } else {
+          window.clearInterval(chartTimer);
+        }
+        dataIndex += 1;
+      };
+
+      const chartTimer = window.setInterval(drawChart, duration * 1.25);
+
+      drawChart();
+  </script>
+</body>
+</html>

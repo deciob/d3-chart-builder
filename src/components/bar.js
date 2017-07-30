@@ -1,29 +1,22 @@
 // @flow
 
-
-import {
-  select,
-} from 'd3-selection';
-
 import type {
   BarConfig,
-  BarLayouts,
   BaseConfig,
-  D3GenericDataAccessor,
+  State,
 } from '../config';
 
 
 // TODO data should be of type Array<{[key: string]: number | string}> or nested!
 export default function (
   config: BaseConfig & BarConfig,
-  state: {[key: string]: any},
+  state: State,
   container: Array<mixed>,
-  data: any,
+  data: any, // TODO data type
 ): Array<mixed> {
   const height = config.height;
   const xAccessor = config.xAccessor;
   const yAccessor = config.yAccessor;
-  // const zAccessor = config.zAccessor;
   const xScale = state.xScale;
   const yScale = state.yScale;
   const transition = state.transition;
@@ -41,19 +34,16 @@ export default function (
 
   /* eslint-disable indent */
   if (config.barLayout === 'horizontal') {
-    // Horizontal Bars
+    const zeroLevel = xScale(0);
     // UPDATE
-    const bars = barsG
-        .selectAll('.bar')
-        .data(data, yAccessor);
+    const bars = barsG.selectAll('.bar').data(data, yAccessor);
     // EXIT
-    bars.exit()
-        .remove();
+    bars.exit().remove();
     // ENTER
     bars.enter()
       .append('rect')
         .attr('class', 'bar')
-        .attr('x', 0)
+        .attr('x', zeroLevel)
         .attr('y', d => yScale(yAccessor(d)))
       // ENTER + UPDATE
       .merge(bars)
@@ -62,40 +52,8 @@ export default function (
         .attr('y', d => yScale(yAccessor(d)))
         .attr('height', yScale.bandwidth())
         .delay(delay);
-  } else if (config.barLayout === 'verticalStacked') {
-    // UPDATE
-    const g = barsG
-        .selectAll('.bars-g-nested')
-        .data(data);
-    // EXIT
-    g.exit()
-        .remove();
-    // ENTER + UPDATE
-    const nestedBarsG = g.enter()
-      .append('g')
-        .attr('class', 'bars-g-nested')
-        .attr('fill', d => zScale(d.key))
-      .merge(g);
-
-    const zeroLevel = yScale(0);
-
-    const bars = nestedBarsG.selectAll('rect').data(d => d);
-    bars.exit().remove();
-    bars.enter()
-      .append('rect')
-        .attr('x', d => xScale(xAccessor(d.data)))
-        .attr('width', xScale.bandwidth)
-        .attr('y', zeroLevel)
-      // ENTER + UPDATE
-      .merge(bars)
-        .transition(transition)
-        .attr('x', d => xScale(xAccessor(d.data)))
-        .attr('width', xScale.bandwidth())
-        .attr('y', d => yScale(d[1]))
-        .attr('height', d => yScale(d[0]) - yScale(d[1]))
-        .delay(delay);
   } else if (config.barLayout === 'vertical') {
-    // Vertical bars
+    const zeroLevel = yScale(0);
     // UPDATE
     const bars = barsG.selectAll('.bar').data(data, xAccessor);
     // EXIT
@@ -106,7 +64,7 @@ export default function (
         .attr('class', 'bar')
         .attr('x', d => xScale(xAccessor(d)))
         .attr('width', xScale.bandwidth())
-        .attr('y', height)
+        .attr('y', zeroLevel)
       // ENTER + UPDATE
       .merge(bars)
         .transition(transition)
@@ -115,9 +73,43 @@ export default function (
         .attr('y', d => yScale(yAccessor(d)))
         .attr('height', d => height - yScale(yAccessor(d)))
         .delay(delay);
+  } else if (config.barLayout === 'verticalStacked') {
+    const zeroLevel = yScale(0);
+    // UPDATE
+    // https://github.com/d3/d3-selection#selection_data
+    // Joins the specified array of data with the selected elements,
+    // returning a new selection that represents the update selection:
+    // the elements successfully bound to data.
+    // Also defines the enter and exit selections on the returned selection...
+    const dataJoin = barsG.selectAll('.bars-g-nested').data(data);
+    // EXIT
+    dataJoin.exit().remove();
+    // ENTER + UPDATE
+    const nestedBarsG = dataJoin.enter()
+      .append('g')
+        .attr('class', 'bars-g-nested')
+        .attr('fill', d => zScale && zScale(d.key))
+      .merge(dataJoin);
+
+    // UPDATE
+    const bars = nestedBarsG.selectAll('rect').data(d => d);
+    // EXIT
+    bars.exit().remove();
+    // ENTER + UPDATE
+    bars.enter()
+      .append('rect')
+        .attr('x', d => xScale(xAccessor(d.data)))
+        .attr('width', xScale.bandwidth)
+        .attr('y', zeroLevel)
+      .merge(bars)
+        .transition(transition)
+        .attr('x', d => xScale(xAccessor(d.data)))
+        .attr('width', xScale.bandwidth())
+        .attr('y', d => yScale(d[1]))
+        .attr('height', d => yScale(d[0]) - yScale(d[1]))
+        .delay(delay);
   }
   /* eslint-enable indent */
-
 
   return container;
 }

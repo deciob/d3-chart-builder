@@ -15,7 +15,7 @@ import {
 } from 'd3-scale';
 
 import type {
-  BarLayouts,
+  Layouts,
 } from './config';
 
 
@@ -51,7 +51,7 @@ function extend(
 }
 
 function getDefaultStackedKeys(
-  layout: BarLayouts,
+  layout: Layouts,
   data: {[string]: number | string}[],
 ): string[] {
   if (layout === 'horizontal') {

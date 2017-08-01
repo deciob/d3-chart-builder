@@ -15,8 +15,15 @@ export type State = {|
   zScale: void | (any) => any,
 |};
 
+export type Layouts =
+  | 'horizontal'
+  | 'vertical'
+  | 'verticalStacked';
+
 export type BaseConfig = {|
+  fixedAxis: boolean,
   height: number,
+  layout: Layouts,
   margin: {
     top: number,
     right: number,
@@ -26,18 +33,20 @@ export type BaseConfig = {|
   transitionDuration: number,
   transitionStepSeed: number,
   width: number,
-  xAccessor: D3GenericDataAccessor,
+  xAccessor: (any) => any, /* D3GenericDataAccessor */
   xAxis: void | (any) => any,
   xAxisShow: boolean,
   xDomain: void | [number, number],
-  yAccessor: D3GenericDataAccessor,
+  yAccessor: (any) => any, /* D3GenericDataAccessor */
   yAxis: void | (any) => any,
   yAxisShow: boolean,
   yDomain: void | [number, number],
 |};
 
 export const baseConfig: BaseConfig = {
+  fixedAxis: true,
   height: 100,
+  layout: 'vertical',
   margin: {
     top: 0,
     right: 0,
@@ -58,14 +67,7 @@ export const baseConfig: BaseConfig = {
 };
 
 
-export type BarLayouts =
-  | 'horizontal'
-  | 'vertical'
-  | 'verticalStacked';
-
-
 export type BarConfig = {|
-  barLayout: BarLayouts,
   divergin: boolean,
   quantitativeScaleType: string,
   stack: void | (any) => any,
@@ -73,7 +75,6 @@ export type BarConfig = {|
 |};
 
 export const barConfig: BarConfig = {
-  barLayout: 'vertical',
   divergin: false,
   quantitativeScaleType: 'linear',
   stack: undefined,

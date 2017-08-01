@@ -27,16 +27,31 @@ function drawAxis(
   if (axisG.empty()) {
     // $FlowNoD3
     axisG = container.append('g');
-    switch (cssClass) {
-      case 'x-axis-g':
-        axisG.attr('transform', `translate(0, ${config.height})`).attr('class', cssClass);
-        break;
-      case 'y-axis-g':
-        axisG.attr('class', cssClass);
-        break;
-      default:
-        break;
+  }
+
+  switch (cssClass) {
+    case 'x-axis-g': {
+      let zeroLevel = 0;
+      if (config.fixedAxis || config.layout.includes('horizontal')) {
+        zeroLevel = config.height;
+      } else if (config.layout.includes('vertical')) {
+        zeroLevel = state.yScale(0);
+      }
+      axisG.attr('transform', `translate(0, ${zeroLevel})`)
+        .attr('class', cssClass);
+      break;
     }
+    case 'y-axis-g':
+      if (config.fixedAxis || config.layout.includes('vertical')) {
+        axisG.attr('class', cssClass);
+      } else if (config.layout.includes('horizontal')) {
+        const zeroLevel = state.xScale(0);
+        axisG.attr('transform', `translate(${zeroLevel}, 0)`)
+          .attr('class', cssClass);
+      }
+      break;
+    default:
+      break;
   }
 
   /* eslint-disable indent */

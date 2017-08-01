@@ -37,7 +37,7 @@ import wrapper from '../components/wrapper';
 
 import type {
   BarConfig,
-  BarLayouts,
+  Layouts,
   BaseConfig,
   State,
 } from '../config';
@@ -60,7 +60,7 @@ export default function (): (Array<mixed>) => mixed {
     const data = selection.datum();
     let barData;
 
-    const state: State = ((layout: BarLayouts): State => {
+    const state: State = ((layout: Layouts): State => {
       const xRange = [0, config.width];
       const yRange = [0, config.height];
       const tr = transition().duration(config.transitionDuration);
@@ -69,7 +69,7 @@ export default function (): (Array<mixed>) => mixed {
       switch (layout) {
         case 'horizontal': {
           const quantitativeMax = max(data, config.xAccessor);
-          const quantitativeMin = min(data, config.yAccessor);
+          const quantitativeMin = min(data, config.xAccessor);
           const xDomain = config.xDomain !== undefined ?
             config.xDomain : [
               quantitativeMin < 0 ? quantitativeMin : 0,
@@ -129,7 +129,7 @@ export default function (): (Array<mixed>) => mixed {
         }
         case 'verticalStacked': {
           const keys = config.stackedKeys ||
-            helpers.getDefaultStackedKeys(config.barLayout, data);
+            helpers.getDefaultStackedKeys(config.layout, data);
           const offset = config.divergin ?
             stackOffsetDiverging :
             stackOrderAscending;
@@ -175,7 +175,7 @@ export default function (): (Array<mixed>) => mixed {
             zScale: undefined,
           };
       }
-    })(config.barLayout);
+    })(config.layout);
 
     const barComponent = bar(config, state, wrapperComponent, barData);
     const xAxisComponent = xAxis(config, state, wrapperComponent);

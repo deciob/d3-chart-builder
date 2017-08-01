@@ -33,8 +33,7 @@ export default function (
   }
 
   /* eslint-disable indent */
-  if (config.barLayout === 'horizontal') {
-    // TODO: negative values
+  if (config.layout === 'horizontal') {
     const zeroLevel = xScale(0);
     // UPDATE
     const bars = barsG.selectAll('.bar').data(data, yAccessor);
@@ -49,11 +48,26 @@ export default function (
       // ENTER + UPDATE
       .merge(bars)
         .transition(transition)
-        .attr('width', d => xScale(xAccessor(d)))
+        .attr('x', (d) => {
+          const value = xAccessor(d);
+          const scaledValue = xScale(value);
+          if (value >= 0) {
+            return zeroLevel;
+          }
+          return scaledValue;
+        })
+        .attr('width', (d) => {
+          const value = xAccessor(d);
+          const scaledValue = xScale(value);
+          if (value >= 0) {
+            return scaledValue - zeroLevel;
+          }
+          return scaledValue + zeroLevel;
+        })
         .attr('y', d => yScale(yAccessor(d)))
         .attr('height', yScale.bandwidth())
         .delay(delay);
-  } else if (config.barLayout === 'vertical') {
+  } else if (config.layout === 'vertical') {
     const zeroLevel = yScale(0);
     // UPDATE
     const bars = barsG.selectAll('.bar').data(data, xAccessor);
@@ -64,7 +78,6 @@ export default function (
       .append('rect')
         .attr('class', 'bar')
         .attr('x', d => xScale(xAccessor(d)))
-        .attr('width', xScale.bandwidth())
         .attr('y', zeroLevel)
       // ENTER + UPDATE
       .merge(bars)
@@ -88,7 +101,7 @@ export default function (
           return (height - scaledValue) + (height - zeroLevel);
           })
         .delay(delay);
-  } else if (config.barLayout === 'verticalStacked') {
+  } else if (config.layout === 'verticalStacked') {
     const zeroLevel = yScale(0);
     // UPDATE
     // https://github.com/d3/d3-selection#selection_data

@@ -14,7 +14,7 @@ export default function (
   container: Array<mixed>,
   data: any, // TODO data type
 ): Array<mixed> {
-  const height = config.height;
+  const height = state.height;
   const xAccessor = config.xAccessor;
   const yAccessor = config.yAccessor;
   const xScale = state.xScale;

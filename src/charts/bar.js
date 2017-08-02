@@ -55,14 +55,15 @@ export default function (): (Array<mixed>) => mixed {
   const config: BaseConfig & BarConfig = helpers.extend(baseConfig, barConfig);
 
   function exports(selection: Array<mixed>) {
-    const wrapperComponent = wrapper(config, selection);
     // $FlowNoD3
     const data = selection.datum();
+    const height = config.height - config.margin.top - config.margin.bottom;
+    const width = config.width - config.margin.left - config.margin.right;
     let barData;
 
     const state: State = ((layout: Layouts): State => {
-      const xRange = [0, config.width];
-      const yRange = [0, config.height];
+      const xRange = [0, width];
+      const yRange = [0, height];
       const tr = transition().duration(config.transitionDuration);
       const transitionDelay = (d, i) => i * config.transitionStepSeed;
 
@@ -86,8 +87,10 @@ export default function (): (Array<mixed>) => mixed {
           const zScale = undefined;
           barData = data;
           return {
+            height,
             transition: tr,
             transitionDelay,
+            width,
             xDomain,
             xRange,
             xScale,
@@ -116,8 +119,10 @@ export default function (): (Array<mixed>) => mixed {
           const zScale = undefined;
           barData = data;
           return {
+            height,
             transition: tr,
             transitionDelay,
+            width,
             xDomain,
             xRange,
             xScale,
@@ -146,12 +151,14 @@ export default function (): (Array<mixed>) => mixed {
           const xScale = helpers.getOrdinalBandScale(xDomain, xRange);
           const yScale = scaleLinear()
             .domain(yDomain)
-            .rangeRound([config.height - config.margin.bottom, config.margin.top]);
+            .rangeRound([height, 0]);
           const zScale = scaleOrdinal(schemeCategory10);
           barData = series;
           return {
+            height,
             transition: tr,
             transitionDelay,
+            width,
             xDomain,
             xRange,
             xScale,
@@ -164,8 +171,10 @@ export default function (): (Array<mixed>) => mixed {
         default:
           barData = data;
           return {
+            height,
             transition: tr,
             transitionDelay,
+            width,
             xDomain: [0, 0],
             xRange,
             xScale: () => undefined,
@@ -177,6 +186,7 @@ export default function (): (Array<mixed>) => mixed {
       }
     })(config.layout);
 
+    const wrapperComponent = wrapper(config, state, selection);
     const barComponent = bar(config, state, wrapperComponent, barData);
     const xAxisComponent = xAxis(config, state, wrapperComponent);
     const yAxisComponent = yAxis(config, state, wrapperComponent);

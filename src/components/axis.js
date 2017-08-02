@@ -33,7 +33,7 @@ function drawAxis(
     case 'x-axis-g': {
       let zeroLevel = 0;
       if (config.fixedAxis || config.layout.includes('horizontal')) {
-        zeroLevel = config.height;
+        zeroLevel = state.height;
       } else if (config.layout.includes('vertical')) {
         zeroLevel = state.yScale(0);
       }

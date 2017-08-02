@@ -2,14 +2,16 @@
 
 import type {
   BaseConfig,
+  State,
 } from '../config';
 
 export default function (
   config: BaseConfig,
+  state: State,
   container: Array<mixed>,
 ): Array<mixed> {
-  const width = config.width;
-  const height = config.height;
+  const width = state.width;
+  const height = state.height;
   const margin = config.margin;
 
   // $FlowNoD3

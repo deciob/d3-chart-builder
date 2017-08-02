@@ -4,8 +4,10 @@ export type D3GenericDataAccessor =
   ({[string]: number | string}) => number | string
 
 export type State = {|
+  height: number,
   transition: (any) => any,
   transitionDelay: ({[key: string]: mixed}, number) => number,
+  width: number,
   xDomain: [number, number],
   xRange: [number, number],
   xScale: (any) => any,

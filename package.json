@@ -34,14 +34,17 @@
     "rollup-plugin-babel": "^2.7.1",
     "rollup-plugin-flow": "^1.1.1",
     "rollup-plugin-node-resolve": "^3.0.0",
-    "rollup-watch": "^4.0.0"
+    "rollup-watch": "^4.0.0",
+    "uglify-js": "^3.0.27"
   },
   "scripts": {
     "build": "rollup -c ./rollup-config/rollup-all-dependencies.config.js",
     "build:no-dep": "rollup -c ./rollup-config/rollup-no-dependencies.config.js",
     "flow": "flow",
     "start": "http-server -p 3001",
-    "watch": "npm run build -- --watch",
-    "test": "jest"
+    "test": "jest",
+    "uglify": "uglifyjs dist/all-dependencies/d3-charts.js -o dist/all-dependencies/d3-charts.min.js -c -m",
+    "uglify:no-dep": "uglifyjs dist/no-dependencies/d3-charts.js -o dist/no-dependencies/d3-charts.min.js -c -m",
+    "watch": "npm run build -- --watch"
   }
 }

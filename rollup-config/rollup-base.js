@@ -1,13 +1,12 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import babel from 'rollup-plugin-babel';
 import flow from 'rollup-plugin-flow';
 import nodeResolve from 'rollup-plugin-node-resolve';
 
-
 export default {
-  dest: 'dist/ntc.js',
   entry: 'src/main.js',
   format: 'umd',
-  moduleName: 'ntc',
+  moduleName: 'd3',
   plugins: [
     // order counts!
     // first remove flow annotatins, then babel!
@@ -31,5 +30,5 @@ export default {
       jsnext: true,
     }),
   ],
-  sourceMap: 'inline',
+  sourceMap: true,
 };

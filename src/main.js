@@ -2,17 +2,17 @@ import {
   select,
 } from 'd3-selection';
 
-import bar from './charts/bar';
+import barChart from './charts/bar';
 import helpers from './helpers';
 import wrapper from './components/wrapper';
 
-const ntc = {
-  bar,
+const d3 = {
+  barChart,
   components: {},
   helpers,
   select,
 };
 
-ntc.components.wrapper = wrapper;
+d3.components.wrapper = wrapper;
 
-export default ntc;
+export default d3;

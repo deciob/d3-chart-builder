@@ -37,10 +37,11 @@
     "rollup-watch": "^4.0.0"
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c ./rollup-config/rollup-all-dependencies.config.js",
+    "build:no-dep": "rollup -c ./rollup-config/rollup-no-dependencies.config.js",
     "flow": "flow",
     "start": "http-server -p 3001",
-    "watch": "rollup -c --watch",
+    "watch": "npm run build -- --watch",
     "test": "jest"
   }
 }

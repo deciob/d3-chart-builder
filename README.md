@@ -1,5 +1,6 @@
-# ntc
-Nightcharts version 2, name TBC (mooncharts?)
+# d3-charts
+
+d3 reusable charts plugin
 
 Next TODO:
 

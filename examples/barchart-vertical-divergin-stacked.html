@@ -13,9 +13,9 @@
   <div class='wrapper'>
     <div id='chart'></div>
   </div>
-  <script src='../dist/ntc.js'></script>
+  <script src='../dist/all-dependencies/d3-charts.js'></script>
   <script>
-    const barChart = ntc.bar();
+    const barChart = d3.barChart();
     const data = [
       [
         {x: "Q1-2016", apples: 100, bananas: 100, cherries: -100, dates: -100},
@@ -36,7 +36,7 @@
         {x: "Q3-2016", apples: 80, bananas: 70, cherries: -60, dates: -180},
       ],
     ];
-    const chartContainer = ntc.select('#chart');
+    const chartContainer = d3.select('#chart');
     const duration = 750;
     let dataIndex = 0;
 

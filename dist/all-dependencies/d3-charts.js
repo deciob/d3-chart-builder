@@ -2413,7 +2413,6 @@ var formatTypes = {
   "x": function(x) { return Math.round(x).toString(16); }
 };
 
-// [[fill]align][sign][symbol][0][width][,][.precision][type]
 var re = /^(?:(.)?([<>=^]))?([+\-\( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?([a-z%])?$/i;
 
 function formatSpecifier(specifier) {
@@ -5278,10 +5277,6 @@ function axisLeft(scale) {
 }
 
 //      
-
-// TODO:
-// Axis positioning, see: https://bl.ocks.org/mbostock/b5935342c6d21928111928401e2c8608
-
 
 function drawAxis(config, state, container, cssClass, axis) {
   // $FlowNoD3

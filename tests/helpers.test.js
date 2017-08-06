@@ -36,10 +36,10 @@ test('extend', () => {
   expect(extended.cities).not.toBe(expected.cities);
 });
 
-test('getOrdinalScale', () => {
+test('getOrdinalBandScale', () => {
   const config = { width: 100 };
   const domain = ['a', 'b', 'c'];
-  const scale = helpers.getOrdinalScale(config, domain);
+  const scale = helpers.getOrdinalBandScale(config, domain);
 
   expect(typeof scale).toBe('function');
 });

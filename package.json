@@ -30,6 +30,7 @@
     "flow-bin": "^0.48.0",
     "http-server": "^0.10.0",
     "jest": "^20.0.4",
+    "jsdom": "^11.1.0",
     "rollup": "^0.43.0",
     "rollup-plugin-babel": "^2.7.1",
     "rollup-plugin-flow": "^1.1.1",
@@ -43,6 +44,7 @@
     "flow": "flow",
     "start": "http-server -p 3001",
     "test": "jest",
+    "test:updateSnapshots": "jest --updateSnapshot",
     "uglify": "uglifyjs dist/all-dependencies/d3-charts.js -o dist/all-dependencies/d3-charts.min.js -c -m",
     "uglify:no-dep": "uglifyjs dist/no-dependencies/d3-charts.js -o dist/no-dependencies/d3-charts.min.js -c -m",
     "watch": "npm run build -- --watch"

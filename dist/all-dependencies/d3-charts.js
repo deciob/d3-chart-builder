@@ -5575,6 +5575,54 @@ var helpers = {
   stackMin: stackMin
 };
 
+var actions = {
+  UPDATE_CONFIGURATION: 'UPDATE_CONFIGURATION'
+};
+
+
+
+function reducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var action = arguments[1];
+
+  switch (action.type) {
+    case actions.UPDATE_CONFIGURATION:
+      return Object.assign({}, state, {
+        configuration: action.value
+      });
+    default:
+      return state;
+  }
+}
+
+function createStore(preloadedState) {
+  var currentState = preloadedState;
+
+  var dispatcher = dispatch(actions.UPDATE_CONFIGURATION);
+
+  function dispatch$$1(action) {
+    currentState = reducer(currentState, action);
+    dispatcher.call(action.type, null, currentState);
+  }
+
+  function subscribe(action, callback) {
+    dispatcher.on(action, callback);
+    return function unsubscribe() {
+      dispatcher.on(action, null);
+    };
+  }
+
+  function getState() {
+    return currentState;
+  }
+
+  return {
+    dispatch: dispatch$$1,
+    getState: getState,
+    subscribe: subscribe
+  };
+}
+
 //      
 
 
@@ -5601,6 +5649,121 @@ var wrapper = function (config, state, container) {
 
 //      
 
+function setup(config, data) // TODO data type
+{
+  var height = config.height - config.margin.top - config.margin.bottom;
+  var width = config.width - config.margin.left - config.margin.right;
+  var xRange = [0, width];
+  var yRange = [0, height];
+  var tr = transition().duration(config.transitionDuration);
+  var transitionDelay = function transitionDelay(d, i) {
+    return i * config.transitionStepSeed;
+  };
+
+  switch (config.layout) {
+    case 'horizontal':
+      {
+        var quantitativeMax = max(data, config.xAccessor);
+        var quantitativeMin = min(data, config.xAccessor);
+        var xDomain = config.xDomain !== undefined ? config.xDomain : [quantitativeMin < 0 ? quantitativeMin : 0, quantitativeMax];
+        var yDomain = config.yDomain !== undefined ? config.yDomain : data.map(config.yAccessor);
+        var xScale = helpers.getQuantitativeScale(config.quantitativeScaleType, xDomain, xRange);
+        var yScale = helpers.getOrdinalBandScale(yDomain, yRange);
+        var zScale = undefined;
+        return {
+          barData: data,
+          state: {
+            height: height,
+            transition: tr,
+            transitionDelay: transitionDelay,
+            width: width,
+            xDomain: xDomain,
+            xRange: xRange,
+            xScale: xScale,
+            yDomain: yDomain,
+            yRange: yRange,
+            yScale: yScale,
+            zScale: zScale
+          }
+        };
+      }
+    case 'vertical':
+      {
+        var _quantitativeMax = max(data, config.yAccessor);
+        var _quantitativeMin = min(data, config.yAccessor);
+        var _xDomain = config.xDomain !== undefined ? config.xDomain : data.map(config.xAccessor);
+        var _yDomain = config.yDomain !== undefined ? config.yDomain : [_quantitativeMax, _quantitativeMin < 0 ? _quantitativeMin : 0];
+        var _xScale = helpers.getOrdinalBandScale(_xDomain, xRange);
+        var _yScale = helpers.getQuantitativeScale(config.quantitativeScaleType, _yDomain, yRange);
+        var _zScale = undefined;
+        return {
+          barData: data,
+          state: {
+            height: height,
+            transition: tr,
+            transitionDelay: transitionDelay,
+            width: width,
+            xDomain: _xDomain,
+            xRange: xRange,
+            xScale: _xScale,
+            yDomain: _yDomain,
+            yRange: yRange,
+            yScale: _yScale,
+            zScale: _zScale
+          }
+        };
+      }
+    case 'verticalStacked':
+      {
+        var keys = config.stackedKeys || helpers.getDefaultStackedKeys(config.layout, data);
+        var offset = config.divergin ? stackOffsetDiverging : ascending$2;
+        var series = stack().keys(keys).offset(offset)(data);
+        var _xDomain2 = config.xDomain !== undefined ? config.xDomain : data.map(config.xAccessor);
+        var _yDomain2 = config.yDomain !== undefined ? config.yDomain : [min(series, helpers.stackMin), max(series, helpers.stackMax)];
+        var _xScale2 = helpers.getOrdinalBandScale(_xDomain2, xRange);
+        var _yScale2 = linear().domain(_yDomain2).rangeRound([height, 0]);
+        var _zScale2 = ordinal(schemeCategory10);
+        return {
+          barData: series,
+          state: {
+            height: height,
+            transition: tr,
+            transitionDelay: transitionDelay,
+            width: width,
+            xDomain: _xDomain2,
+            xRange: xRange,
+            xScale: _xScale2,
+            yRange: yRange,
+            yDomain: _yDomain2,
+            yScale: _yScale2,
+            zScale: _zScale2
+          }
+        };
+      }
+    default:
+      return {
+        barData: data,
+        state: {
+          height: height,
+          transition: tr,
+          transitionDelay: transitionDelay,
+          width: width,
+          xDomain: [0, 0],
+          xRange: xRange,
+          xScale: function xScale() {
+            return undefined;
+          },
+          yRange: yRange,
+          yDomain: [0, 0],
+          yScale: function yScale() {
+            return undefined;
+          },
+          zScale: undefined
+        }
+      };
+  }
+}
+
 /**
  Example:
  const barChart = ntc.bar();
@@ -5615,113 +5778,14 @@ var barChart = function () {
   function exports(selection) {
     // $FlowNoD3
     var data = selection.datum();
-    var height = config.height - config.margin.top - config.margin.bottom;
-    var width = config.width - config.margin.left - config.margin.right;
-    var barData = void 0;
 
-    var state = function (layout) {
-      var xRange = [0, width];
-      var yRange = [0, height];
-      var tr = transition().duration(config.transitionDuration);
-      var transitionDelay = function transitionDelay(d, i) {
-        return i * config.transitionStepSeed;
-      };
+    var _setup = setup(config, data),
+        state = _setup.state,
+        barData = _setup.barData;
 
-      switch (layout) {
-        case 'horizontal':
-          {
-            var quantitativeMax = max(data, config.xAccessor);
-            var quantitativeMin = min(data, config.xAccessor);
-            var xDomain = config.xDomain !== undefined ? config.xDomain : [quantitativeMin < 0 ? quantitativeMin : 0, quantitativeMax];
-            var yDomain = config.yDomain !== undefined ? config.yDomain : data.map(config.yAccessor);
-            var xScale = helpers.getQuantitativeScale(config.quantitativeScaleType, xDomain, xRange);
-            var yScale = helpers.getOrdinalBandScale(yDomain, yRange);
-            var zScale = undefined;
-            barData = data;
-            return {
-              height: height,
-              transition: tr,
-              transitionDelay: transitionDelay,
-              width: width,
-              xDomain: xDomain,
-              xRange: xRange,
-              xScale: xScale,
-              yDomain: yDomain,
-              yRange: yRange,
-              yScale: yScale,
-              zScale: zScale
-            };
-          }
-        case 'vertical':
-          {
-            var _quantitativeMax = max(data, config.yAccessor);
-            var _quantitativeMin = min(data, config.yAccessor);
-            var _xDomain = config.xDomain !== undefined ? config.xDomain : data.map(config.xAccessor);
-            var _yDomain = config.yDomain !== undefined ? config.yDomain : [_quantitativeMax, _quantitativeMin < 0 ? _quantitativeMin : 0];
-            var _xScale = helpers.getOrdinalBandScale(_xDomain, xRange);
-            var _yScale = helpers.getQuantitativeScale(config.quantitativeScaleType, _yDomain, yRange);
-            var _zScale = undefined;
-            barData = data;
-            return {
-              height: height,
-              transition: tr,
-              transitionDelay: transitionDelay,
-              width: width,
-              xDomain: _xDomain,
-              xRange: xRange,
-              xScale: _xScale,
-              yDomain: _yDomain,
-              yRange: yRange,
-              yScale: _yScale,
-              zScale: _zScale
-            };
-          }
-        case 'verticalStacked':
-          {
-            var keys = config.stackedKeys || helpers.getDefaultStackedKeys(config.layout, data);
-            var offset = config.divergin ? stackOffsetDiverging : ascending$2;
-            var series = stack().keys(keys).offset(offset)(data);
-            var _xDomain2 = config.xDomain !== undefined ? config.xDomain : data.map(config.xAccessor);
-            var _yDomain2 = config.yDomain !== undefined ? config.yDomain : [min(series, helpers.stackMin), max(series, helpers.stackMax)];
-            var _xScale2 = helpers.getOrdinalBandScale(_xDomain2, xRange);
-            var _yScale2 = linear().domain(_yDomain2).rangeRound([height, 0]);
-            var _zScale2 = ordinal(schemeCategory10);
-            barData = series;
-            return {
-              height: height,
-              transition: tr,
-              transitionDelay: transitionDelay,
-              width: width,
-              xDomain: _xDomain2,
-              xRange: xRange,
-              xScale: _xScale2,
-              yRange: yRange,
-              yDomain: _yDomain2,
-              yScale: _yScale2,
-              zScale: _zScale2
-            };
-          }
-        default:
-          barData = data;
-          return {
-            height: height,
-            transition: tr,
-            transitionDelay: transitionDelay,
-            width: width,
-            xDomain: [0, 0],
-            xRange: xRange,
-            xScale: function xScale() {
-              return undefined;
-            },
-            yRange: yRange,
-            yDomain: [0, 0],
-            yScale: function yScale() {
-              return undefined;
-            },
-            zScale: undefined
-          };
-      }
-    }(config.layout);
+    var store = createStore(state);
+
+    console.log(store.getState());
 
     var wrapperComponent = wrapper(config, state, selection);
     var barComponent = bar(config, state, wrapperComponent, barData);

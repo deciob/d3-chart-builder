@@ -4,8 +4,10 @@
     "plugin:flowtype/recommended"
   ],
   "globals": {
+    "afterAll": true,
+    "beforeAll": true,
+    "expect": true,
     "test": true,
-    "expect": true
   },
   "parser": "babel-eslint",
   "plugins": [

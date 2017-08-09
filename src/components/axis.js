@@ -7,7 +7,7 @@ import {
 
 import type {
   BaseConfig,
-  State,
+  DerivedConfig,
 } from '../config';
 
 // TODO:
@@ -16,7 +16,7 @@ import type {
 
 function drawAxis(
   config: BaseConfig,
-  state: State,
+  derivedConfig: DerivedConfig,
   container: Array<mixed>,
   cssClass: string,
   axis: (Array<mixed>) => mixed,
@@ -33,9 +33,9 @@ function drawAxis(
     case 'x-axis-g': {
       let zeroLevel = 0;
       if (config.fixedAxis || config.layout.includes('horizontal')) {
-        zeroLevel = state.height;
+        zeroLevel = derivedConfig.height;
       } else if (config.layout.includes('vertical')) {
-        zeroLevel = state.yScale(0);
+        zeroLevel = derivedConfig.yScale(0);
       }
       axisG.attr('transform', `translate(0, ${zeroLevel})`)
         .attr('class', cssClass);
@@ -45,7 +45,7 @@ function drawAxis(
       if (config.fixedAxis || config.layout.includes('vertical')) {
         axisG.attr('class', cssClass);
       } else if (config.layout.includes('horizontal')) {
-        const zeroLevel = state.xScale(0);
+        const zeroLevel = derivedConfig.xScale(0);
         axisG.attr('transform', `translate(${zeroLevel}, 0)`)
           .attr('class', cssClass);
       }
@@ -55,10 +55,10 @@ function drawAxis(
   }
 
   /* eslint-disable indent */
-  axisG.transition(state.transition)
+  axisG.transition(derivedConfig.transition)
       .call(axis)
     .selectAll('g')
-      .delay(state.transitionDelay);
+      .delay(derivedConfig.transitionDelay);
   /* eslint-enable indent */
 
   return axisG;
@@ -66,7 +66,7 @@ function drawAxis(
 
 export function xAxis(
   config: BaseConfig,
-  state: State,
+  derivedConfig: DerivedConfig,
   container: Array<mixed>,
 ): Array<mixed> {
   if (config.xAxisShow) {
@@ -75,10 +75,10 @@ export function xAxis(
     if (config.xAxis) {
       axis = config.xAxis;
     } else {
-      axis = axisBottom(state.xScale);
+      axis = axisBottom(derivedConfig.xScale);
     }
 
-    return drawAxis(config, state, container, 'x-axis-g', axis);
+    return drawAxis(config, derivedConfig, container, 'x-axis-g', axis);
   }
 
   return [];
@@ -86,7 +86,7 @@ export function xAxis(
 
 export function yAxis(
   config: BaseConfig,
-  state: State,
+  derivedConfig: DerivedConfig,
   container: Array<mixed>,
 ): Array<mixed> {
   if (config.yAxisShow) {
@@ -95,10 +95,10 @@ export function yAxis(
     if (config.yAxis) {
       axis = config.yAxis;
     } else {
-      axis = axisLeft(state.yScale);
+      axis = axisLeft(derivedConfig.yScale);
     }
 
-    return drawAxis(config, state, container, 'y-axis-g', axis);
+    return drawAxis(config, derivedConfig, container, 'y-axis-g', axis);
   }
 
   return [];

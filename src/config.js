@@ -3,7 +3,7 @@
 export type D3GenericDataAccessor =
   ({[string]: number | string}) => number | string
 
-export type State = {|
+export type DerivedConfig = {|
   height: number,
   transition: (any) => any,
   transitionDelay: ({[key: string]: mixed}, number) => number,

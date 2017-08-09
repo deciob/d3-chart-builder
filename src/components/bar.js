@@ -3,25 +3,25 @@
 import type {
   BarConfig,
   BaseConfig,
-  State,
+  DerivedConfig,
 } from '../config';
 
 
 // TODO data should be of type Array<{[key: string]: number | string}> or nested!
 export default function (
   config: BaseConfig & BarConfig,
-  state: State,
+  derivedConfig: DerivedConfig,
   container: Array<mixed>,
   data: any, // TODO data type
 ): Array<mixed> {
-  const height = state.height;
+  const height = derivedConfig.height;
   const xAccessor = config.xAccessor;
   const yAccessor = config.yAccessor;
-  const xScale = state.xScale;
-  const yScale = state.yScale;
-  const transition = state.transition;
-  const delay = state.transitionDelay;
-  const zScale = state.zScale;
+  const xScale = derivedConfig.xScale;
+  const yScale = derivedConfig.yScale;
+  const transition = derivedConfig.transition;
+  const delay = derivedConfig.transitionDelay;
+  const zScale = derivedConfig.zScale;
 
   // $FlowNoD3
   let barsG = container.select('.bars-g');

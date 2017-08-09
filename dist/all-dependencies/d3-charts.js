@@ -2413,6 +2413,7 @@ var formatTypes = {
   "x": function(x) { return Math.round(x).toString(16); }
 };
 
+// [[fill]align][sign][symbol][0][width][,][.precision][type]
 var re = /^(?:(.)?([<>=^]))?([+\-\( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?([a-z%])?$/i;
 
 function formatSpecifier(specifier) {
@@ -5278,7 +5279,11 @@ function axisLeft(scale) {
 
 //      
 
-function drawAxis(config, state, container, cssClass, axis) {
+// TODO:
+// Axis positioning, see: https://bl.ocks.org/mbostock/b5935342c6d21928111928401e2c8608
+
+
+function drawAxis(config, derivedConfig, container, cssClass, axis) {
   // $FlowNoD3
   var axisG = container.select('.' + cssClass);
 
@@ -5292,9 +5297,9 @@ function drawAxis(config, state, container, cssClass, axis) {
       {
         var zeroLevel = 0;
         if (config.fixedAxis || config.layout.includes('horizontal')) {
-          zeroLevel = state.height;
+          zeroLevel = derivedConfig.height;
         } else if (config.layout.includes('vertical')) {
-          zeroLevel = state.yScale(0);
+          zeroLevel = derivedConfig.yScale(0);
         }
         axisG.attr('transform', 'translate(0, ' + zeroLevel + ')').attr('class', cssClass);
         break;
@@ -5303,7 +5308,7 @@ function drawAxis(config, state, container, cssClass, axis) {
       if (config.fixedAxis || config.layout.includes('vertical')) {
         axisG.attr('class', cssClass);
       } else if (config.layout.includes('horizontal')) {
-        var _zeroLevel = state.xScale(0);
+        var _zeroLevel = derivedConfig.xScale(0);
         axisG.attr('transform', 'translate(' + _zeroLevel + ', 0)').attr('class', cssClass);
       }
       break;
@@ -5312,39 +5317,39 @@ function drawAxis(config, state, container, cssClass, axis) {
   }
 
   /* eslint-disable indent */
-  axisG.transition(state.transition).call(axis).selectAll('g').delay(state.transitionDelay);
+  axisG.transition(derivedConfig.transition).call(axis).selectAll('g').delay(derivedConfig.transitionDelay);
   /* eslint-enable indent */
 
   return axisG;
 }
 
-function xAxis(config, state, container) {
+function xAxis(config, derivedConfig, container) {
   if (config.xAxisShow) {
     var axis = void 0;
 
     if (config.xAxis) {
       axis = config.xAxis;
     } else {
-      axis = axisBottom(state.xScale);
+      axis = axisBottom(derivedConfig.xScale);
     }
 
-    return drawAxis(config, state, container, 'x-axis-g', axis);
+    return drawAxis(config, derivedConfig, container, 'x-axis-g', axis);
   }
 
   return [];
 }
 
-function yAxis(config, state, container) {
+function yAxis(config, derivedConfig, container) {
   if (config.yAxisShow) {
     var axis = void 0;
 
     if (config.yAxis) {
       axis = config.yAxis;
     } else {
-      axis = axisLeft(state.yScale);
+      axis = axisLeft(derivedConfig.yScale);
     }
 
-    return drawAxis(config, state, container, 'y-axis-g', axis);
+    return drawAxis(config, derivedConfig, container, 'y-axis-g', axis);
   }
 
   return [];
@@ -5354,16 +5359,16 @@ function yAxis(config, state, container) {
 
 
 // TODO data should be of type Array<{[key: string]: number | string}> or nested!
-var bar = function (config, state, container, data) // TODO data type
+var bar = function (config, derivedConfig, container, data) // TODO data type
 {
-  var height = state.height;
+  var height = derivedConfig.height;
   var xAccessor = config.xAccessor;
   var yAccessor = config.yAccessor;
-  var xScale = state.xScale;
-  var yScale = state.yScale;
-  var transition = state.transition;
-  var delay = state.transitionDelay;
-  var zScale = state.zScale;
+  var xScale = derivedConfig.xScale;
+  var yScale = derivedConfig.yScale;
+  var transition = derivedConfig.transition;
+  var delay = derivedConfig.transitionDelay;
+  var zScale = derivedConfig.zScale;
 
   // $FlowNoD3
   var barsG = container.select('.bars-g');
@@ -5626,9 +5631,9 @@ function createStore(preloadedState) {
 //      
 
 
-var wrapper = function (config, state, container) {
-  var width = state.width;
-  var height = state.height;
+var wrapper = function (config, derivedConfig, container) {
+  var width = derivedConfig.width;
+  var height = derivedConfig.height;
   var margin = config.margin;
 
   // $FlowNoD3
@@ -5672,7 +5677,7 @@ function setup(config, data) // TODO data type
         var zScale = undefined;
         return {
           barData: data,
-          state: {
+          derivedConfig: {
             height: height,
             transition: tr,
             transitionDelay: transitionDelay,
@@ -5698,7 +5703,7 @@ function setup(config, data) // TODO data type
         var _zScale = undefined;
         return {
           barData: data,
-          state: {
+          derivedConfig: {
             height: height,
             transition: tr,
             transitionDelay: transitionDelay,
@@ -5725,7 +5730,7 @@ function setup(config, data) // TODO data type
         var _zScale2 = ordinal(schemeCategory10);
         return {
           barData: series,
-          state: {
+          derivedConfig: {
             height: height,
             transition: tr,
             transitionDelay: transitionDelay,
@@ -5743,7 +5748,7 @@ function setup(config, data) // TODO data type
     default:
       return {
         barData: data,
-        state: {
+        derivedConfig: {
           height: height,
           transition: tr,
           transitionDelay: transitionDelay,
@@ -5780,23 +5785,28 @@ var barChart = function () {
     var data = selection.datum();
 
     var _setup = setup(config, data),
-        state = _setup.state,
+        derivedConfig = _setup.derivedConfig,
         barData = _setup.barData;
 
-    var store = createStore(state);
+    var store = createStore(derivedConfig);
 
     console.log(store.getState());
 
-    var wrapperComponent = wrapper(config, state, selection);
-    var barComponent = bar(config, state, wrapperComponent, barData);
-    var xAxisComponent = xAxis(config, state, wrapperComponent);
-    var yAxisComponent = yAxis(config, state, wrapperComponent);
+    var wrapperComponent = wrapper(config, derivedConfig, selection);
+    var barComponent = bar(config, derivedConfig, wrapperComponent, barData);
+    var xAxisComponent = xAxis(config, derivedConfig, wrapperComponent);
+    var yAxisComponent = yAxis(config, derivedConfig, wrapperComponent);
   }
 
   helpers.getset(exports, config);
 
   return exports;
 };
+
+// Concept:
+// config
+// derivedConfig
+// derivedConfig
 
 var d3 = {
   barChart: barChart,

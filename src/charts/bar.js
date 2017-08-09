@@ -41,14 +41,14 @@ import wrapper from '../components/wrapper';
 import type {
   BarConfig,
   BaseConfig,
-  State,
+  DerivedConfig,
 } from '../config';
 
 
 function setup(
   config: BaseConfig & BarConfig,
   data: any, // TODO data type
-): { state: State, barData: any } {
+): { derivedConfig: DerivedConfig, barData: any } {
   const height = config.height - config.margin.top - config.margin.bottom;
   const width = config.width - config.margin.left - config.margin.right;
   const xRange = [0, width];
@@ -76,7 +76,7 @@ function setup(
       const zScale = undefined;
       return {
         barData: data,
-        state: {
+        derivedConfig: {
           height,
           transition: tr,
           transitionDelay,
@@ -110,7 +110,7 @@ function setup(
       const zScale = undefined;
       return {
         barData: data,
-        state: {
+        derivedConfig: {
           height,
           transition: tr,
           transitionDelay,
@@ -148,7 +148,7 @@ function setup(
       const zScale = scaleOrdinal(schemeCategory10);
       return {
         barData: series,
-        state: {
+        derivedConfig: {
           height,
           transition: tr,
           transitionDelay,
@@ -166,7 +166,7 @@ function setup(
     default:
       return {
         barData: data,
-        state: {
+        derivedConfig: {
           height,
           transition: tr,
           transitionDelay,
@@ -198,18 +198,23 @@ export default function (): (Array<mixed>) => mixed {
   function exports(selection: Array<mixed>) {
     // $FlowNoD3
     const data = selection.datum();
-    const { state, barData } = setup(config, data);
-    const store = createStore(state);
+    const { derivedConfig, barData } = setup(config, data);
+    const store = createStore(derivedConfig);
 
     console.log(store.getState());
 
-    const wrapperComponent = wrapper(config, state, selection);
-    const barComponent = bar(config, state, wrapperComponent, barData);
-    const xAxisComponent = xAxis(config, state, wrapperComponent);
-    const yAxisComponent = yAxis(config, state, wrapperComponent);
+    const wrapperComponent = wrapper(config, derivedConfig, selection);
+    const barComponent = bar(config, derivedConfig, wrapperComponent, barData);
+    const xAxisComponent = xAxis(config, derivedConfig, wrapperComponent);
+    const yAxisComponent = yAxis(config, derivedConfig, wrapperComponent);
   }
 
   helpers.getset(exports, config);
 
   return exports;
 }
+
+// Concept:
+// config
+// derivedConfig
+// derivedConfig

@@ -33,9 +33,9 @@ import {
 
 import bar from '../components/bar';
 import helpers from '../helpers';
-import {
-  createStore,
-} from '../state';
+// import {
+//   createStore,
+// } from '../state';
 import wrapper from '../components/wrapper';
 
 import type {
@@ -196,12 +196,17 @@ export default function (): (Array<mixed>) => mixed {
   const config: BaseConfig & BarConfig = helpers.extend(baseConfig, barConfig);
 
   function exports(selection: Array<mixed>) {
+    // Concept:
+    // data
+    // config
+    // derivedConfig
+    // state
+
     // $FlowNoD3
     const data = selection.datum();
     const { derivedConfig, barData } = setup(config, data);
-    const store = createStore(derivedConfig);
-
-    console.log(store.getState());
+    // TODO
+    // const store = createStore(derivedConfig);
 
     const wrapperComponent = wrapper(config, derivedConfig, selection);
     const barComponent = bar(config, derivedConfig, wrapperComponent, barData);
@@ -213,8 +218,3 @@ export default function (): (Array<mixed>) => mixed {
 
   return exports;
 }
-
-// Concept:
-// config
-// derivedConfig
-// derivedConfig

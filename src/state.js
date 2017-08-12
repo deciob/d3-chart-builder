@@ -1,16 +1,18 @@
+// TODO
+
 import {
   dispatch as d3Dispatch,
 } from 'd3-dispatch';
 
 
 export const actions = {
-  UPDATE_CONFIGURATION: 'UPDATE_CONFIGURATION',
+  UPDATE_BRUSH_EXTENT: 'UPDATE_BRUSH_EXTENT',
 };
 
 export const actionHandlers = {
-  updateConfiguration: function updateConfiguration(value) {
+  updateBrushExtent: function updateBrushExtent(value) {
     return {
-      type: actions.UPDATE_CONFIGURATION,
+      type: actions.UPDATE_BRUSH_EXTENT,
       value,
     };
   },
@@ -18,9 +20,9 @@ export const actionHandlers = {
 
 export function reducer(state = {}, action) {
   switch (action.type) {
-    case actions.UPDATE_CONFIGURATION:
+    case actions.UPDATE_BRUSH_EXTENT:
       return Object.assign({}, state, {
-        configuration: action.value,
+        brushExtent: action.value,
       });
     default:
       return state;
@@ -32,7 +34,7 @@ export function createStore(preloadedState) {
 
   const dispatcher =
     d3Dispatch(
-      actions.UPDATE_CONFIGURATION,
+      actions.UPDATE_BRUSH_EXTENT,
     );
 
   function dispatch(action) {

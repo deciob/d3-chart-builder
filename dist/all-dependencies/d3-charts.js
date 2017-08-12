@@ -5580,54 +5580,6 @@ var helpers = {
   stackMin: stackMin
 };
 
-var actions = {
-  UPDATE_CONFIGURATION: 'UPDATE_CONFIGURATION'
-};
-
-
-
-function reducer() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var action = arguments[1];
-
-  switch (action.type) {
-    case actions.UPDATE_CONFIGURATION:
-      return Object.assign({}, state, {
-        configuration: action.value
-      });
-    default:
-      return state;
-  }
-}
-
-function createStore(preloadedState) {
-  var currentState = preloadedState;
-
-  var dispatcher = dispatch(actions.UPDATE_CONFIGURATION);
-
-  function dispatch$$1(action) {
-    currentState = reducer(currentState, action);
-    dispatcher.call(action.type, null, currentState);
-  }
-
-  function subscribe(action, callback) {
-    dispatcher.on(action, callback);
-    return function unsubscribe() {
-      dispatcher.on(action, null);
-    };
-  }
-
-  function getState() {
-    return currentState;
-  }
-
-  return {
-    dispatch: dispatch$$1,
-    getState: getState,
-    subscribe: subscribe
-  };
-}
-
 //      
 
 
@@ -5654,6 +5606,9 @@ var wrapper = function (config, derivedConfig, container) {
 
 //      
 
+// import {
+//   createStore,
+// } from '../state';
 function setup(config, data) // TODO data type
 {
   var height = config.height - config.margin.top - config.margin.bottom;
@@ -5781,16 +5736,20 @@ var barChart = function () {
   var config = helpers.extend(baseConfig, barConfig);
 
   function exports(selection) {
+    // Concept:
+    // data
+    // config
+    // derivedConfig
+    // state
+
     // $FlowNoD3
     var data = selection.datum();
 
     var _setup = setup(config, data),
         derivedConfig = _setup.derivedConfig,
         barData = _setup.barData;
-
-    var store = createStore(derivedConfig);
-
-    console.log(store.getState());
+    // TODO
+    // const store = createStore(derivedConfig);
 
     var wrapperComponent = wrapper(config, derivedConfig, selection);
     var barComponent = bar(config, derivedConfig, wrapperComponent, barData);
@@ -5802,11 +5761,6 @@ var barChart = function () {
 
   return exports;
 };
-
-// Concept:
-// config
-// derivedConfig
-// derivedConfig
 
 var d3 = {
   barChart: barChart,

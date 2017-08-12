@@ -1,5 +1,5 @@
 {
-  "name": "ntc",
+  "name": "d3-charts",
   "version": "0.0.1",
   "description": "Reusable d3 charts",
   "main": "src/main.js",

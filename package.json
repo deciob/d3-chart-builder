@@ -1,5 +1,5 @@
 {
-  "name": "d3-charts",
+  "name": "d3-chart-builder",
   "version": "0.0.1",
   "description": "Reusable d3 charts",
   "main": "src/main.js",

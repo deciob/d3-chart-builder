@@ -1,6 +1,6 @@
 {
   "name": "d3-chart-builder",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Reusable d3 charts",
   "main": "src/main.js",
   "repository": "git@github.com:deciob/d3-chart-builder.git",

@@ -1,9 +1,9 @@
 {
   "name": "d3-chart-builder",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Reusable d3 charts",
   "main": "src/main.js",
-  "repository": "git@github.com:deciob/ntc.git",
+  "repository": "git@github.com:deciob/d3-chart-builder.git",
   "author": "deciob <decio.battaglia@gmail.com>",
   "license": "MIT",
   "dependencies": {

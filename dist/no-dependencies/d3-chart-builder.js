@@ -47,7 +47,7 @@ var barConfig = {
 // Axis positioning, see: https://bl.ocks.org/mbostock/b5935342c6d21928111928401e2c8608
 
 
-function drawAxis(config, state, container, cssClass, axis) {
+function drawAxis(config, derivedConfig, container, cssClass, axis) {
   // $FlowNoD3
   var axisG = container.select('.' + cssClass);
 
@@ -61,9 +61,9 @@ function drawAxis(config, state, container, cssClass, axis) {
       {
         var zeroLevel = 0;
         if (config.fixedAxis || config.layout.includes('horizontal')) {
-          zeroLevel = state.height;
+          zeroLevel = derivedConfig.height;
         } else if (config.layout.includes('vertical')) {
-          zeroLevel = state.yScale(0);
+          zeroLevel = derivedConfig.yScale(0);
         }
         axisG.attr('transform', 'translate(0, ' + zeroLevel + ')').attr('class', cssClass);
         break;
@@ -72,7 +72,7 @@ function drawAxis(config, state, container, cssClass, axis) {
       if (config.fixedAxis || config.layout.includes('vertical')) {
         axisG.attr('class', cssClass);
       } else if (config.layout.includes('horizontal')) {
-        var _zeroLevel = state.xScale(0);
+        var _zeroLevel = derivedConfig.xScale(0);
         axisG.attr('transform', 'translate(' + _zeroLevel + ', 0)').attr('class', cssClass);
       }
       break;
@@ -81,39 +81,39 @@ function drawAxis(config, state, container, cssClass, axis) {
   }
 
   /* eslint-disable indent */
-  axisG.transition(state.transition).call(axis).selectAll('g').delay(state.transitionDelay);
+  axisG.transition(derivedConfig.transition).call(axis).selectAll('g').delay(derivedConfig.transitionDelay);
   /* eslint-enable indent */
 
   return axisG;
 }
 
-function xAxis(config, state, container) {
+function xAxis(config, derivedConfig, container) {
   if (config.xAxisShow) {
     var axis = void 0;
 
     if (config.xAxis) {
       axis = config.xAxis;
     } else {
-      axis = d3Axis.axisBottom(state.xScale);
+      axis = d3Axis.axisBottom(derivedConfig.xScale);
     }
 
-    return drawAxis(config, state, container, 'x-axis-g', axis);
+    return drawAxis(config, derivedConfig, container, 'x-axis-g', axis);
   }
 
   return [];
 }
 
-function yAxis(config, state, container) {
+function yAxis(config, derivedConfig, container) {
   if (config.yAxisShow) {
     var axis = void 0;
 
     if (config.yAxis) {
       axis = config.yAxis;
     } else {
-      axis = d3Axis.axisLeft(state.yScale);
+      axis = d3Axis.axisLeft(derivedConfig.yScale);
     }
 
-    return drawAxis(config, state, container, 'y-axis-g', axis);
+    return drawAxis(config, derivedConfig, container, 'y-axis-g', axis);
   }
 
   return [];
@@ -123,16 +123,16 @@ function yAxis(config, state, container) {
 
 
 // TODO data should be of type Array<{[key: string]: number | string}> or nested!
-var bar = function (config, state, container, data) // TODO data type
+var bar = function (config, derivedConfig, container, data) // TODO data type
 {
-  var height = state.height;
+  var height = derivedConfig.height;
   var xAccessor = config.xAccessor;
   var yAccessor = config.yAccessor;
-  var xScale = state.xScale;
-  var yScale = state.yScale;
-  var transition$$1 = state.transition;
-  var delay = state.transitionDelay;
-  var zScale = state.zScale;
+  var xScale = derivedConfig.xScale;
+  var yScale = derivedConfig.yScale;
+  var transition$$1 = derivedConfig.transition;
+  var delay = derivedConfig.transitionDelay;
+  var zScale = derivedConfig.zScale;
 
   // $FlowNoD3
   var barsG = container.select('.bars-g');
@@ -347,9 +347,9 @@ var helpers = {
 //      
 
 
-var wrapper = function (config, state, container) {
-  var width = state.width;
-  var height = state.height;
+var wrapper = function (config, derivedConfig, container) {
+  var width = derivedConfig.width;
+  var height = derivedConfig.height;
   var margin = config.margin;
 
   // $FlowNoD3
@@ -370,6 +370,124 @@ var wrapper = function (config, state, container) {
 
 //      
 
+// import {
+//   createStore,
+// } from '../state';
+function setup(config, data) // TODO data type
+{
+  var height = config.height - config.margin.top - config.margin.bottom;
+  var width = config.width - config.margin.left - config.margin.right;
+  var xRange = [0, width];
+  var yRange = [0, height];
+  var tr = d3Transition.transition().duration(config.transitionDuration);
+  var transitionDelay = function transitionDelay(d, i) {
+    return i * config.transitionStepSeed;
+  };
+
+  switch (config.layout) {
+    case 'horizontal':
+      {
+        var quantitativeMax = d3Array.max(data, config.xAccessor);
+        var quantitativeMin = d3Array.min(data, config.xAccessor);
+        var xDomain = config.xDomain !== undefined ? config.xDomain : [quantitativeMin < 0 ? quantitativeMin : 0, quantitativeMax];
+        var yDomain = config.yDomain !== undefined ? config.yDomain : data.map(config.yAccessor);
+        var xScale = helpers.getQuantitativeScale(config.quantitativeScaleType, xDomain, xRange);
+        var yScale = helpers.getOrdinalBandScale(yDomain, yRange);
+        var zScale = undefined;
+        return {
+          barData: data,
+          derivedConfig: {
+            height: height,
+            transition: tr,
+            transitionDelay: transitionDelay,
+            width: width,
+            xDomain: xDomain,
+            xRange: xRange,
+            xScale: xScale,
+            yDomain: yDomain,
+            yRange: yRange,
+            yScale: yScale,
+            zScale: zScale
+          }
+        };
+      }
+    case 'vertical':
+      {
+        var _quantitativeMax = d3Array.max(data, config.yAccessor);
+        var _quantitativeMin = d3Array.min(data, config.yAccessor);
+        var _xDomain = config.xDomain !== undefined ? config.xDomain : data.map(config.xAccessor);
+        var _yDomain = config.yDomain !== undefined ? config.yDomain : [_quantitativeMax, _quantitativeMin < 0 ? _quantitativeMin : 0];
+        var _xScale = helpers.getOrdinalBandScale(_xDomain, xRange);
+        var _yScale = helpers.getQuantitativeScale(config.quantitativeScaleType, _yDomain, yRange);
+        var _zScale = undefined;
+        return {
+          barData: data,
+          derivedConfig: {
+            height: height,
+            transition: tr,
+            transitionDelay: transitionDelay,
+            width: width,
+            xDomain: _xDomain,
+            xRange: xRange,
+            xScale: _xScale,
+            yDomain: _yDomain,
+            yRange: yRange,
+            yScale: _yScale,
+            zScale: _zScale
+          }
+        };
+      }
+    case 'verticalStacked':
+      {
+        var keys = config.stackedKeys || helpers.getDefaultStackedKeys(config.layout, data);
+        var offset = config.divergin ? d3Shape.stackOffsetDiverging : d3Shape.stackOrderAscending;
+        var series = d3Shape.stack().keys(keys).offset(offset)(data);
+        var _xDomain2 = config.xDomain !== undefined ? config.xDomain : data.map(config.xAccessor);
+        var _yDomain2 = config.yDomain !== undefined ? config.yDomain : [d3Array.min(series, helpers.stackMin), d3Array.max(series, helpers.stackMax)];
+        var _xScale2 = helpers.getOrdinalBandScale(_xDomain2, xRange);
+        var _yScale2 = d3Scale.scaleLinear().domain(_yDomain2).rangeRound([height, 0]);
+        var _zScale2 = d3Scale.scaleOrdinal(d3Scale.schemeCategory10);
+        return {
+          barData: series,
+          derivedConfig: {
+            height: height,
+            transition: tr,
+            transitionDelay: transitionDelay,
+            width: width,
+            xDomain: _xDomain2,
+            xRange: xRange,
+            xScale: _xScale2,
+            yRange: yRange,
+            yDomain: _yDomain2,
+            yScale: _yScale2,
+            zScale: _zScale2
+          }
+        };
+      }
+    default:
+      return {
+        barData: data,
+        derivedConfig: {
+          height: height,
+          transition: tr,
+          transitionDelay: transitionDelay,
+          width: width,
+          xDomain: [0, 0],
+          xRange: xRange,
+          xScale: function xScale() {
+            return undefined;
+          },
+          yRange: yRange,
+          yDomain: [0, 0],
+          yScale: function yScale() {
+            return undefined;
+          },
+          zScale: undefined
+        }
+      };
+  }
+}
+
 /**
  Example:
  const barChart = ntc.bar();
@@ -382,120 +500,25 @@ var barChart = function () {
   var config = helpers.extend(baseConfig, barConfig);
 
   function exports(selection) {
+    // Concept:
+    // data
+    // config
+    // derivedConfig
+    // state
+
     // $FlowNoD3
     var data = selection.datum();
-    var height = config.height - config.margin.top - config.margin.bottom;
-    var width = config.width - config.margin.left - config.margin.right;
-    var barData = void 0;
 
-    var state = function (layout) {
-      var xRange = [0, width];
-      var yRange = [0, height];
-      var tr = d3Transition.transition().duration(config.transitionDuration);
-      var transitionDelay = function transitionDelay(d, i) {
-        return i * config.transitionStepSeed;
-      };
+    var _setup = setup(config, data),
+        derivedConfig = _setup.derivedConfig,
+        barData = _setup.barData;
+    // TODO
+    // const store = createStore(derivedConfig);
 
-      switch (layout) {
-        case 'horizontal':
-          {
-            var quantitativeMax = d3Array.max(data, config.xAccessor);
-            var quantitativeMin = d3Array.min(data, config.xAccessor);
-            var xDomain = config.xDomain !== undefined ? config.xDomain : [quantitativeMin < 0 ? quantitativeMin : 0, quantitativeMax];
-            var yDomain = config.yDomain !== undefined ? config.yDomain : data.map(config.yAccessor);
-            var xScale = helpers.getQuantitativeScale(config.quantitativeScaleType, xDomain, xRange);
-            var yScale = helpers.getOrdinalBandScale(yDomain, yRange);
-            var zScale = undefined;
-            barData = data;
-            return {
-              height: height,
-              transition: tr,
-              transitionDelay: transitionDelay,
-              width: width,
-              xDomain: xDomain,
-              xRange: xRange,
-              xScale: xScale,
-              yDomain: yDomain,
-              yRange: yRange,
-              yScale: yScale,
-              zScale: zScale
-            };
-          }
-        case 'vertical':
-          {
-            var _quantitativeMax = d3Array.max(data, config.yAccessor);
-            var _quantitativeMin = d3Array.min(data, config.yAccessor);
-            var _xDomain = config.xDomain !== undefined ? config.xDomain : data.map(config.xAccessor);
-            var _yDomain = config.yDomain !== undefined ? config.yDomain : [_quantitativeMax, _quantitativeMin < 0 ? _quantitativeMin : 0];
-            var _xScale = helpers.getOrdinalBandScale(_xDomain, xRange);
-            var _yScale = helpers.getQuantitativeScale(config.quantitativeScaleType, _yDomain, yRange);
-            var _zScale = undefined;
-            barData = data;
-            return {
-              height: height,
-              transition: tr,
-              transitionDelay: transitionDelay,
-              width: width,
-              xDomain: _xDomain,
-              xRange: xRange,
-              xScale: _xScale,
-              yDomain: _yDomain,
-              yRange: yRange,
-              yScale: _yScale,
-              zScale: _zScale
-            };
-          }
-        case 'verticalStacked':
-          {
-            var keys = config.stackedKeys || helpers.getDefaultStackedKeys(config.layout, data);
-            var offset = config.divergin ? d3Shape.stackOffsetDiverging : d3Shape.stackOrderAscending;
-            var series = d3Shape.stack().keys(keys).offset(offset)(data);
-            var _xDomain2 = config.xDomain !== undefined ? config.xDomain : data.map(config.xAccessor);
-            var _yDomain2 = config.yDomain !== undefined ? config.yDomain : [d3Array.min(series, helpers.stackMin), d3Array.max(series, helpers.stackMax)];
-            var _xScale2 = helpers.getOrdinalBandScale(_xDomain2, xRange);
-            var _yScale2 = d3Scale.scaleLinear().domain(_yDomain2).rangeRound([height, 0]);
-            var _zScale2 = d3Scale.scaleOrdinal(d3Scale.schemeCategory10);
-            barData = series;
-            return {
-              height: height,
-              transition: tr,
-              transitionDelay: transitionDelay,
-              width: width,
-              xDomain: _xDomain2,
-              xRange: xRange,
-              xScale: _xScale2,
-              yRange: yRange,
-              yDomain: _yDomain2,
-              yScale: _yScale2,
-              zScale: _zScale2
-            };
-          }
-        default:
-          barData = data;
-          return {
-            height: height,
-            transition: tr,
-            transitionDelay: transitionDelay,
-            width: width,
-            xDomain: [0, 0],
-            xRange: xRange,
-            xScale: function xScale() {
-              return undefined;
-            },
-            yRange: yRange,
-            yDomain: [0, 0],
-            yScale: function yScale() {
-              return undefined;
-            },
-            zScale: undefined
-          };
-      }
-    }(config.layout);
-
-    var wrapperComponent = wrapper(config, state, selection);
-    var barComponent = bar(config, state, wrapperComponent, barData);
-    var xAxisComponent = xAxis(config, state, wrapperComponent);
-    var yAxisComponent = yAxis(config, state, wrapperComponent);
+    var wrapperComponent = wrapper(config, derivedConfig, selection);
+    var barComponent = bar(config, derivedConfig, wrapperComponent, barData);
+    var xAxisComponent = xAxis(config, derivedConfig, wrapperComponent);
+    var yAxisComponent = yAxis(config, derivedConfig, wrapperComponent);
   }
 
   helpers.getset(exports, config);
@@ -515,4 +538,4 @@ d3.components.wrapper = wrapper;
 return d3;
 
 })));
-//# sourceMappingURL=d3-charts.js.map
+//# sourceMappingURL=d3-chart-builder.js.map

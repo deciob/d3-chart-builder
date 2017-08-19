@@ -2,7 +2,8 @@
   "name": "d3-chart-builder",
   "version": "0.0.3",
   "description": "Reusable d3 charts",
-  "main": "src/main.js",
+  "main": "dist/all-dependencies/d3-chart-builder.js",
+  "module": "dist/all-dependencies-esm/d3-chart-builder.js",
   "repository": "git@github.com:deciob/d3-chart-builder.git",
   "author": "deciob <decio.battaglia@gmail.com>",
   "license": "MIT",
@@ -41,6 +42,7 @@
   },
   "scripts": {
     "build": "rollup -c ./rollup-config/rollup-all-dependencies.config.js",
+    "build:esm": "rollup -c ./rollup-config/rollup-all-dependencies-esm.config.js",
     "build:no-dep": "rollup -c ./rollup-config/rollup-no-dependencies.config.js",
     "flow": "flow",
     "start": "http-server -p 3001",

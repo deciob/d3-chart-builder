@@ -1,7 +1,7 @@
 import rollupBase from './rollup-base';
 
 export default Object.assign({
-  dest: 'dist/no-dependencies/d3-charts.js',
+  dest: 'dist/no-dependencies/d3-chart-builder.js',
   external: [
     'd3-array',
     'd3-axis',

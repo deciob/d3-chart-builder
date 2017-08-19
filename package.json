@@ -1,6 +1,6 @@
 {
   "name": "d3-chart-builder",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Reusable d3 charts",
   "main": "dist/all-dependencies/d3-chart-builder.js",
   "module": "dist/all-dependencies-esm/d3-chart-builder.js",

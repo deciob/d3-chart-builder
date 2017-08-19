@@ -1,9 +1,3 @@
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-	typeof define === 'function' && define.amd ? define(factory) :
-	(global.d3 = factory());
-}(this, (function () { 'use strict';
-
 var xhtml = "http://www.w3.org/1999/xhtml";
 
 var namespaces = {
@@ -5771,7 +5765,5 @@ var d3 = {
 
 d3.components.wrapper = wrapper;
 
-return d3;
-
-})));
+export default d3;
 //# sourceMappingURL=d3-chart-builder.js.map

@@ -42,6 +42,7 @@
   },
   "scripts": {
     "build": "rollup -c ./rollup-config/rollup-all-dependencies.config.js",
+    "build:all": "npm run build && npm run build:esm && npm run build:no-dep",
     "build:esm": "rollup -c ./rollup-config/rollup-all-dependencies-esm.config.js",
     "build:no-dep": "rollup -c ./rollup-config/rollup-no-dependencies.config.js",
     "flow": "flow",

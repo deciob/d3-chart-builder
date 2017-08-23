@@ -37,9 +37,21 @@ var baseConfig = {
 var barConfig = {
   divergin: false,
   quantitativeScaleType: 'linear',
-  stack: undefined,
-  stackedKeys: undefined
+  schemeCategory: undefined,
+  // stack: undefined,
+  stackedKeys: []
 };
+
+// ERRORS
+
+function ConfigError(message) {
+  this.name = 'ConfigError';
+  this.message = message || 'Something is wrong with the config';
+  this.stack = new Error().stack;
+}
+
+ConfigError.prototype = Object.create(Error.prototype);
+ConfigError.prototype.constructor = ConfigError;
 
 //      
 
@@ -273,17 +285,6 @@ function extend(target, source) {
   return targetClone;
 }
 
-function getDefaultStackedKeys(layout, data) {
-  if (layout === 'horizontal') {
-    return Object.keys(data[0]).filter(function (k) {
-      return k !== 'y';
-    });
-  }
-  return Object.keys(data[0]).filter(function (k) {
-    return k !== 'x';
-  });
-}
-
 // $FlowNoD3
 function getOrdinalBandScale(domain, range) {
   return d3Scale.scaleBand().rangeRound(range, 0.1).padding(0.1).domain(domain);
@@ -335,7 +336,6 @@ function stackMin(serie) {
 var helpers = {
   clone: clone,
   extend: extend,
-  getDefaultStackedKeys: getDefaultStackedKeys,
   getOrdinalBandScale: getOrdinalBandScale,
   getQuantitativeScale: getQuantitativeScale,
   getset: getset,
@@ -439,14 +439,17 @@ function setup(config, data) // TODO data type
       }
     case 'verticalStacked':
       {
-        var keys = config.stackedKeys || helpers.getDefaultStackedKeys(config.layout, data);
+        var keys = config.stackedKeys;
+        if (keys.length === 0) {
+          throw new ConfigError('A stacked barchart needs a list of stackedKeys');
+        }
         var offset = config.divergin ? d3Shape.stackOffsetDiverging : d3Shape.stackOrderAscending;
         var series = d3Shape.stack().keys(keys).offset(offset)(data);
         var _xDomain2 = config.xDomain !== undefined ? config.xDomain : data.map(config.xAccessor);
         var _yDomain2 = config.yDomain !== undefined ? config.yDomain : [d3Array.min(series, helpers.stackMin), d3Array.max(series, helpers.stackMax)];
         var _xScale2 = helpers.getOrdinalBandScale(_xDomain2, xRange);
         var _yScale2 = d3Scale.scaleLinear().domain(_yDomain2).rangeRound([height, 0]);
-        var _zScale2 = d3Scale.scaleOrdinal(d3Scale.schemeCategory10);
+        var _zScale2 = d3Scale.scaleOrdinal(config.schemeCategory || d3Scale.schemeCategory10);
         return {
           barData: series,
           derivedConfig: {

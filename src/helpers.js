@@ -14,10 +14,6 @@ import {
   scaleLinear,
 } from 'd3-scale';
 
-import type {
-  Layouts,
-} from './config';
-
 
 function isObject<T>(o: T): boolean {
   return Object.prototype.toString.call(o) === '[object Object]';
@@ -48,16 +44,6 @@ function extend(
     targetClone[prop] = source[prop];
   });
   return targetClone;
-}
-
-function getDefaultStackedKeys(
-  layout: Layouts,
-  data: {[string]: number | string}[],
-): string[] {
-  if (layout === 'horizontal') {
-    return Object.keys(data[0]).filter(k => k !== 'y');
-  }
-  return Object.keys(data[0]).filter(k => k !== 'x');
 }
 
 // $FlowNoD3
@@ -116,7 +102,6 @@ function stackMin<T>(serie: Array<T>): T {
 export default {
   clone,
   extend,
-  getDefaultStackedKeys,
   getOrdinalBandScale,
   getQuantitativeScale,
   getset,

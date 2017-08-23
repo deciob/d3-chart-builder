@@ -72,13 +72,27 @@ export const baseConfig: BaseConfig = {
 export type BarConfig = {|
   divergin: boolean,
   quantitativeScaleType: string,
-  stack: void | (any) => any,
-  stackedKeys: ?string[],
+  schemeCategory: ?string[],
+  // stack: void | (any) => any,
+  stackedKeys: string[],
 |};
 
 export const barConfig: BarConfig = {
   divergin: false,
   quantitativeScaleType: 'linear',
-  stack: undefined,
-  stackedKeys: undefined,
+  schemeCategory: undefined,
+  // stack: undefined,
+  stackedKeys: [],
 };
+
+
+// ERRORS
+
+export function ConfigError(message: string) {
+  this.name = 'ConfigError';
+  this.message = message || 'Something is wrong with the config';
+  this.stack = (new Error()).stack;
+}
+
+ConfigError.prototype = Object.create(Error.prototype);
+ConfigError.prototype.constructor = ConfigError;

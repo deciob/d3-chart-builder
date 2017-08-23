@@ -24,6 +24,7 @@ import {
 import {
   baseConfig,
   barConfig,
+  ConfigError,
 } from '../config';
 
 import {
@@ -126,8 +127,10 @@ function setup(
       };
     }
     case 'verticalStacked': {
-      const keys = config.stackedKeys ||
-        helpers.getDefaultStackedKeys(config.layout, data);
+      const keys = config.stackedKeys;
+      if (keys.length === 0) {
+        throw new ConfigError('A stacked barchart needs a list of stackedKeys');
+      }
       const offset = config.divergin ?
         stackOffsetDiverging :
         stackOrderAscending;
@@ -145,7 +148,7 @@ function setup(
       const yScale = scaleLinear()
         .domain(yDomain)
         .rangeRound([height, 0]);
-      const zScale = scaleOrdinal(schemeCategory10);
+      const zScale = scaleOrdinal(config.schemeCategory || schemeCategory10);
       return {
         barData: series,
         derivedConfig: {

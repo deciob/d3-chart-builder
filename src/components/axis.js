@@ -38,16 +38,16 @@ function drawAxis(
         zeroLevel = derivedConfig.yScale(0);
       }
       axisG.attr('transform', `translate(0, ${zeroLevel})`)
-        .attr('class', cssClass);
+        .attr('class', `axis-g ${cssClass}`);
       break;
     }
     case 'y-axis-g':
       if (config.fixedAxis || config.layout.includes('vertical')) {
-        axisG.attr('class', cssClass);
+        axisG.attr('class', `axis-g ${cssClass}`);
       } else if (config.layout.includes('horizontal')) {
         const zeroLevel = derivedConfig.xScale(0);
         axisG.attr('transform', `translate(${zeroLevel}, 0)`)
-          .attr('class', cssClass);
+          .attr('class', `axis-g ${cssClass}`);
       }
       break;
     default:
@@ -74,6 +74,7 @@ export function xAxis(
 
     if (config.xAxis) {
       axis = config.xAxis;
+      axis.scale(derivedConfig.xScale);
     } else {
       axis = axisBottom(derivedConfig.xScale);
     }
@@ -94,6 +95,7 @@ export function yAxis(
 
     if (config.yAxis) {
       axis = config.yAxis;
+      axis.scale(derivedConfig.yScale);
     } else {
       axis = axisLeft(derivedConfig.yScale);
     }

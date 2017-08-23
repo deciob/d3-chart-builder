@@ -13,27 +13,27 @@
   <div class='wrapper'>
     <div id='chart'></div>
   </div>
-  <script src='../dist/all-dependencies/d3-charts.js'></script>
+  <script src='../dist/all-dependencies/d3-chart-builder.js'></script>
   <script>
     const barChart = d3.barChart();
     const data = [
       [
-        {x: "Q1-2016", apples: 100, bananas: 100, cherries: -100, dates: -100},
-        {x: "Q2-2016", apples: 120, bananas: 90, cherries: -120, dates: -200},
+        {xx: "Q1-2016", apples: 100, bananas: 100, cherries: -100, dates: -100},
+        {xx: "Q2-2016", apples: 120, bananas: 90, cherries: -120, dates: -200},
       ],
       [
-        {x: "Q1-2016", apples: 250, bananas: 100, cherries: -100, dates: -100},
-        {x: "Q2-2016", apples: 120, bananas: 90, cherries: -220, dates: -200},
+        {xx: "Q1-2016", apples: 250, bananas: 100, cherries: -100, dates: -100},
+        {xx: "Q2-2016", apples: 120, bananas: 90, cherries: -220, dates: -200},
       ],
       [
-        {x: "Q1-2016", apples: 1250, bananas: 100, cherries: -100, dates: -100},
-        {x: "Q2-2016", apples: 120, bananas: 90, cherries: -120, dates: -200},
-        {x: "Q3-2016", apples: 120, bananas: 90, cherries: -120, dates: -200},
+        {xx: "Q1-2016", apples: 1250, bananas: 100, cherries: -100, dates: -100},
+        {xx: "Q2-2016", apples: 120, bananas: 90, cherries: -120, dates: -200},
+        {xx: "Q3-2016", apples: 120, bananas: 90, cherries: -120, dates: -200},
       ],
       [
-        {x: "Q1-2016", apples: 450, bananas: 90, cherries: -110, dates: -80},
-        {x: "Q2-2016", apples: 90, bananas: 100, cherries: -100, dates: -160},
-        {x: "Q3-2016", apples: 80, bananas: 70, cherries: -60, dates: -180},
+        {xx: "Q1-2016", apples: 450, bananas: 90, cherries: -110, dates: -80},
+        {xx: "Q2-2016", apples: 90, bananas: 100, cherries: -100, dates: -160},
+        {xx: "Q3-2016", apples: 80, bananas: 70, cherries: -60, dates: -180},
       ],
     ];
     const chartContainer = d3.select('#chart');
@@ -42,9 +42,11 @@
 
     barChart
       .layout('verticalStacked')
+      .stackedKeys(['apples', 'bananas', 'cherries'])
       .divergin(true)
       .width(800)
       .height(600)
+      .xAccessor(d => d.xx)
       .yDomain([-500, 1500])
       .divergin(true)
       .transitionDuration(duration)

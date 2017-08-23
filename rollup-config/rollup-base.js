@@ -5,7 +5,7 @@ import nodeResolve from 'rollup-plugin-node-resolve';
 
 export default {
   entry: 'src/main.js',
-  format: 'esm',
+  format: 'umd',
   moduleName: 'd3',
   plugins: [
     // order counts!

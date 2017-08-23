@@ -5093,9 +5093,21 @@ var baseConfig = {
 var barConfig = {
   divergin: false,
   quantitativeScaleType: 'linear',
-  stack: undefined,
-  stackedKeys: undefined
+  schemeCategory: undefined,
+  // stack: undefined,
+  stackedKeys: []
 };
+
+// ERRORS
+
+function ConfigError(message) {
+  this.name = 'ConfigError';
+  this.message = message || 'Something is wrong with the config';
+  this.stack = new Error().stack;
+}
+
+ConfigError.prototype = Object.create(Error.prototype);
+ConfigError.prototype.constructor = ConfigError;
 
 var slice$3 = Array.prototype.slice;
 
@@ -5503,17 +5515,6 @@ function extend$1(target, source) {
   return targetClone;
 }
 
-function getDefaultStackedKeys(layout, data) {
-  if (layout === 'horizontal') {
-    return Object.keys(data[0]).filter(function (k) {
-      return k !== 'y';
-    });
-  }
-  return Object.keys(data[0]).filter(function (k) {
-    return k !== 'x';
-  });
-}
-
 // $FlowNoD3
 function getOrdinalBandScale(domain, range) {
   return band().rangeRound(range, 0.1).padding(0.1).domain(domain);
@@ -5565,7 +5566,6 @@ function stackMin(serie) {
 var helpers = {
   clone: clone,
   extend: extend$1,
-  getDefaultStackedKeys: getDefaultStackedKeys,
   getOrdinalBandScale: getOrdinalBandScale,
   getQuantitativeScale: getQuantitativeScale,
   getset: getset,
@@ -5669,14 +5669,17 @@ function setup(config, data) // TODO data type
       }
     case 'verticalStacked':
       {
-        var keys = config.stackedKeys || helpers.getDefaultStackedKeys(config.layout, data);
+        var keys = config.stackedKeys;
+        if (keys.length === 0) {
+          throw new ConfigError('A stacked barchart needs a list of stackedKeys');
+        }
         var offset = config.divergin ? stackOffsetDiverging : ascending$2;
         var series = stack().keys(keys).offset(offset)(data);
         var _xDomain2 = config.xDomain !== undefined ? config.xDomain : data.map(config.xAccessor);
         var _yDomain2 = config.yDomain !== undefined ? config.yDomain : [min(series, helpers.stackMin), max(series, helpers.stackMax)];
         var _xScale2 = helpers.getOrdinalBandScale(_xDomain2, xRange);
         var _yScale2 = linear().domain(_yDomain2).rangeRound([height, 0]);
-        var _zScale2 = ordinal(schemeCategory10);
+        var _zScale2 = ordinal(config.schemeCategory || schemeCategory10);
         return {
           barData: series,
           derivedConfig: {

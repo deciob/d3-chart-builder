@@ -13,6 +13,7 @@ import {
 } from 'd3-selection';
 
 import barChart from './charts/bar';
+import helpers from './helpers';
 import wrapper from './components/wrapper';
 
 const d3 = {
@@ -20,6 +21,7 @@ const d3 = {
   axisLeft,
   barChart,
   components: {},
+  helpers,
   max,
   min,
   select,

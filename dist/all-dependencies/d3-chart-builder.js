@@ -5772,6 +5772,7 @@ var d3 = {
   axisLeft: axisLeft,
   barChart: barChart,
   components: {},
+  helpers: helpers,
   max: max,
   min: min,
   select: select

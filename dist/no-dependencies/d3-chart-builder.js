@@ -1,8 +1,8 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('d3-selection'), require('d3-array'), require('d3-scale'), require('d3-shape'), require('d3-transition'), require('d3-axis'), require('d3-collection')) :
-	typeof define === 'function' && define.amd ? define(['d3-selection', 'd3-array', 'd3-scale', 'd3-shape', 'd3-transition', 'd3-axis', 'd3-collection'], factory) :
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('d3-axis'), require('d3-array'), require('d3-selection'), require('d3-scale'), require('d3-shape'), require('d3-transition'), require('d3-collection')) :
+	typeof define === 'function' && define.amd ? define(['d3-axis', 'd3-array', 'd3-selection', 'd3-scale', 'd3-shape', 'd3-transition', 'd3-collection'], factory) :
 	(global.d3 = factory(global.d3,global.d3,global.d3,global.d3,global.d3,global.d3,global.d3));
-}(this, (function (d3Selection,d3Array,d3Scale,d3Shape,d3Transition,d3Axis,d3Collection) { 'use strict';
+}(this, (function (d3Axis,d3Array,d3Selection,d3Scale,d3Shape,d3Transition,d3Collection) { 'use strict';
 
 //      
 
@@ -77,15 +77,15 @@ function drawAxis(config, derivedConfig, container, cssClass, axis) {
         } else if (config.layout.includes('vertical')) {
           zeroLevel = derivedConfig.yScale(0);
         }
-        axisG.attr('transform', 'translate(0, ' + zeroLevel + ')').attr('class', cssClass);
+        axisG.attr('transform', 'translate(0, ' + zeroLevel + ')').attr('class', 'axis-g ' + cssClass);
         break;
       }
     case 'y-axis-g':
       if (config.fixedAxis || config.layout.includes('vertical')) {
-        axisG.attr('class', cssClass);
+        axisG.attr('class', 'axis-g ' + cssClass);
       } else if (config.layout.includes('horizontal')) {
         var _zeroLevel = derivedConfig.xScale(0);
-        axisG.attr('transform', 'translate(' + _zeroLevel + ', 0)').attr('class', cssClass);
+        axisG.attr('transform', 'translate(' + _zeroLevel + ', 0)').attr('class', 'axis-g ' + cssClass);
       }
       break;
     default:
@@ -105,6 +105,7 @@ function xAxis(config, derivedConfig, container) {
 
     if (config.xAxis) {
       axis = config.xAxis;
+      axis.scale(derivedConfig.xScale);
     } else {
       axis = d3Axis.axisBottom(derivedConfig.xScale);
     }
@@ -121,6 +122,7 @@ function yAxis(config, derivedConfig, container) {
 
     if (config.yAxis) {
       axis = config.yAxis;
+      axis.scale(derivedConfig.yScale);
     } else {
       axis = d3Axis.axisLeft(derivedConfig.yScale);
     }
@@ -530,9 +532,13 @@ var barChart = function () {
 };
 
 var d3 = {
+  axisBottom: d3Axis.axisBottom,
+  axisLeft: d3Axis.axisLeft,
   barChart: barChart,
   components: {},
   helpers: helpers,
+  max: d3Array.max,
+  min: d3Array.min,
   select: d3Selection.select
 };
 

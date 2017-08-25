@@ -23,6 +23,7 @@ export type Layouts =
   | 'verticalStacked';
 
 export type BaseConfig = {|
+  brushShow: boolean,
   fixedAxis: boolean,
   height: number,
   layout: Layouts,

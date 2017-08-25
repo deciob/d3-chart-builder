@@ -4,10 +4,18 @@ import {
   brushX,
 } from 'd3-brush';
 
+import {
+  event,
+  select,
+} from 'd3-selection';
+
+import helpers from '../helpers';
+
 import type {
   BaseConfig,
   DerivedConfig,
 } from '../dataTypes';
+
 
 export default function (
   config: BaseConfig,
@@ -16,24 +24,30 @@ export default function (
 ): Array<mixed> {
   const width = derivedConfig.width;
   const height = derivedConfig.height;
-  const margin = config.margin;
 
   // $FlowNoD3
-  let svg = container.select('svg');
+  let brushG = container.select('brush-g');
 
-  if (svg.empty()) {
-    // append the svg object to the body of the page
-    // append a 'group' element to 'svg'
-    // moves the 'group' element to the top left margin
-    /* eslint-disable indent */
+  if (brushG.empty()) {
     // $FlowNoD3
-    svg = container.append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-        .attr('transform', `translate(${margin.left}, ${margin.top})`);
-    /* eslint-enable indent */
+    brushG = container.append('g').attr('class', 'brush-g');
   }
 
-  return svg;
+  function brushended() {
+    if (!event.sourceEvent) return; // Only transition after input.
+    if (!event.selection) return; // Ignore empty selections.
+
+    const newExtent = helpers
+      .snapBrushToXBandScale(event.selection, derivedConfig.xScale);
+
+    select(this).transition().call(event.target.move, newExtent);
+  }
+
+  brushG.call(
+    brushX()
+      .extent([[0, 0], [width, height]])
+      .on('end', brushended),
+  );
+
+  return brushG;
 }

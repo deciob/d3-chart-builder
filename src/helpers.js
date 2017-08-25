@@ -1,6 +1,7 @@
 // @flow
 
 import {
+  bisectRight,
   max,
   min,
 } from 'd3-array';
@@ -90,6 +91,34 @@ function getset(
   return f;
 }
 
+function snapBrushToXBandScale(
+  extent: number[],
+  scale: (any) => any,
+): number[] {
+  const steps = [0].concat(scale.domain().map((d, i) => scale.step() * (i + 1)));
+  const padding = Math.round((scale.step() * scale.paddingInner()) / 2);
+  const idxInsertionLeft = bisectRight(steps, extent[0]);
+  const idxInsertionRight = bisectRight(steps, extent[1]);
+  let p0;
+  let p1;
+
+  if (extent[0] - steps[idxInsertionLeft - 1] >= steps[idxInsertionLeft] - extent[0]) {
+    // ...|.....x..|...
+    p0 = steps[idxInsertionLeft];
+  } else {
+    // ...|..x.....|...
+    p0 = steps[idxInsertionLeft - 1];
+  }
+
+  if (extent[1] - steps[idxInsertionRight - 1] >= steps[idxInsertionRight] - extent[1]) {
+    p1 = steps[idxInsertionRight];
+  } else {
+    p1 = steps[idxInsertionRight - 1];
+  }
+
+  return [p0 + padding, p1 + padding];
+}
+
 function stackMax<T>(serie: Array<T>): T {
   return max(serie, d => d[1]);
 }
@@ -106,6 +135,7 @@ export default {
   getQuantitativeScale,
   getset,
   isObject,
+  snapBrushToXBandScale,
   stackMax,
   stackMin,
 };

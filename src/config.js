@@ -6,6 +6,7 @@ import type {
 } from './dataTypes';
 
 export const baseConfig: BaseConfig = {
+  brushShow: false,
   fixedAxis: true,
   height: 100,
   layout: 'vertical',

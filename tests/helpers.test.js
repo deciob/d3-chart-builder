@@ -72,3 +72,36 @@ test('isObject', () => {
   expect(helpers.isObject(44)).toBe(false);
   expect(helpers.isObject({ number: 44 })).toBe(true);
 });
+
+test('snapBrushToXBandScale a', () => {
+  const domain = ['a', 'b', 'c', 'd'];
+  const range = [0, 100];
+  const scale = helpers.getOrdinalBandScale(domain, range);
+  const padding = Math.round((scale.step() * scale.paddingInner()) / 2);
+
+  const extent = [55, 80];
+  const expected = [(scale.step() * 2) + padding, (scale.step() * 3) + padding];
+  expect(helpers.snapBrushToXBandScale(extent, scale)).toEqual(expected);
+});
+
+test('snapBrushToXBandScale b', () => {
+  const domain = ['a', 'b', 'c', 'd'];
+  const range = [0, 100];
+  const scale = helpers.getOrdinalBandScale(domain, range);
+  const padding = Math.round((scale.step() * scale.paddingInner()) / 2);
+
+  const extent = [46, 80];
+  const expected = [(scale.step() * 2) + padding, (scale.step() * 3) + padding];
+  expect(helpers.snapBrushToXBandScale(extent, scale)).toEqual(expected);
+});
+
+test('snapBrushToXBandScale c', () => {
+  const domain = ['a', 'b', 'c', 'd'];
+  const range = [0, 100];
+  const scale = helpers.getOrdinalBandScale(domain, range);
+  const padding = Math.round((scale.step() * scale.paddingInner()) / 2);
+
+  const extent = [20, 80];
+  const expected = [scale.step() + padding, (scale.step() * 3) + padding];
+  expect(helpers.snapBrushToXBandScale(extent, scale)).toEqual(expected);
+});

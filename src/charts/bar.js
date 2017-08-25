@@ -32,6 +32,8 @@ import {
   yAxis,
 } from '../components/axis';
 
+import brush from '../components/brush';
+
 import bar from '../components/bar';
 import helpers from '../helpers';
 // import {
@@ -212,9 +214,16 @@ export default function (): (Array<mixed>) => mixed {
     // const store = createStore(derivedConfig);
 
     const wrapperComponent = wrapper(config, derivedConfig, selection);
-    const barComponent = bar(config, derivedConfig, wrapperComponent, barData);
-    const xAxisComponent = xAxis(config, derivedConfig, wrapperComponent);
-    const yAxisComponent = yAxis(config, derivedConfig, wrapperComponent);
+    bar(config, derivedConfig, wrapperComponent, barData);
+    if (config.xAxisShow) {
+      xAxis(config, derivedConfig, wrapperComponent);
+    }
+    if (config.yAxisShow) {
+      yAxis(config, derivedConfig, wrapperComponent);
+    }
+    if (config.brushShow) {
+      brush(config, derivedConfig, wrapperComponent);
+    }
   }
 
   helpers.getset(exports, config);

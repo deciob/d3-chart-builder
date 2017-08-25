@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+  <title>barchart vertical brush</title>
+  <style type="text/css">
+    .bar {
+      fill: #feb24c;
+    }
+  </style>
+</head>
+<body>
+  <div class='wrapper'>
+    <div id='chart'></div>
+  </div>
+  <script src='../dist/all-dependencies/d3-chart-builder.js'></script>
+  <script>
+    const barChart = d3.barChart();
+    const data = [
+        {x: 'a', y: -10},
+        {x: 'b', y: 20},
+        {x: 'c', y: 30},
+        {x: 'd', y: 40},
+    ];
+    const chartContainer = d3.select('#chart');
+    const duration = 750;
+
+    barChart
+      .width(800)
+      .height(600)
+      .brushShow(true)
+      .transitionDuration(duration)
+      .margin({top: 5, left: 50, right: 0, bottom: 20});
+
+    chartContainer.datum(data).call(barChart);
+  </script>
+</body>
+</html>

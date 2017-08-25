@@ -8,7 +8,7 @@ import {
 import type {
   BaseConfig,
   DerivedConfig,
-} from '../config';
+} from '../dataTypes';
 
 // TODO:
 // Axis positioning, see: https://bl.ocks.org/mbostock/b5935342c6d21928111928401e2c8608

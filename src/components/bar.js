@@ -4,7 +4,7 @@ import type {
   BarConfig,
   BaseConfig,
   DerivedConfig,
-} from '../config';
+} from '../dataTypes';
 
 
 // TODO data should be of type Array<{[key: string]: number | string}> or nested!

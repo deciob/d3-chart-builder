@@ -1,5 +1,9 @@
 // @flow
 
+import {
+  brushX,
+} from 'd3-brush';
+
 import type {
   BaseConfig,
   DerivedConfig,

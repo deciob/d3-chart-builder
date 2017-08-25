@@ -43,7 +43,7 @@ import type {
   BarConfig,
   BaseConfig,
   DerivedConfig,
-} from '../config';
+} from '../dataTypes';
 
 
 function setup(

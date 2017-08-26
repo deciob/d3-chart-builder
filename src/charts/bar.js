@@ -36,15 +36,14 @@ import brush from '../components/brush';
 
 import bar from '../components/bar';
 import helpers from '../helpers';
-// import {
-//   createStore,
-// } from '../state';
+import { createStore } from '../state';
 import wrapper from '../components/wrapper';
 
 import type {
   BarConfig,
   BaseConfig,
   DerivedConfig,
+  Store,
 } from '../dataTypes';
 
 
@@ -199,19 +198,23 @@ function setup(
 
 export default function (): (Array<mixed>) => mixed {
   const config: BaseConfig & BarConfig = helpers.extend(baseConfig, barConfig);
+  const store: Store = createStore({});
 
   function exports(selection: Array<mixed>) {
     // Concept:
     // data
     // config
     // derivedConfig
-    // state
+    // store
 
     // $FlowNoD3
     const data = selection.datum();
     const { derivedConfig, barData } = setup(config, data);
-    // TODO
-    // const store = createStore(derivedConfig);
+
+    // store.subscribe(
+    //   `${actions.UPDATE_X_DOMAIN}.charts.bar`,
+    //   state => console.log('state.xDomain', state.xDomain),
+    // );
 
     const wrapperComponent = wrapper(config, derivedConfig, selection);
     bar(config, derivedConfig, wrapperComponent, barData);
@@ -222,11 +225,12 @@ export default function (): (Array<mixed>) => mixed {
       yAxis(config, derivedConfig, wrapperComponent);
     }
     if (config.brushShow) {
-      brush(config, derivedConfig, wrapperComponent);
+      brush(config, derivedConfig, store, wrapperComponent);
     }
   }
 
   helpers.getset(exports, config);
+  exports.subscribe = store.subscribe;
 
   return exports;
 }

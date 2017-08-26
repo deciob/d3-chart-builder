@@ -92,31 +92,42 @@ function getset(
 }
 
 function snapBrushToXBandScale(
-  extent: number[],
+  extent: [number, number],
   scale: (any) => any,
-): number[] {
+): {newDomain: [number, number], newExtent: [number, number]} {
   const steps = [0].concat(scale.domain().map((d, i) => scale.step() * (i + 1)));
   const padding = Math.round((scale.step() * scale.paddingInner()) / 2);
   const idxInsertionLeft = bisectRight(steps, extent[0]);
   const idxInsertionRight = bisectRight(steps, extent[1]);
-  let p0;
-  let p1;
+  let idx0;
+  let idx1;
 
   if (extent[0] - steps[idxInsertionLeft - 1] >= steps[idxInsertionLeft] - extent[0]) {
     // ...|.....x..|...
-    p0 = steps[idxInsertionLeft];
+    idx0 = idxInsertionLeft;
   } else {
     // ...|..x.....|...
-    p0 = steps[idxInsertionLeft - 1];
+    idx0 = idxInsertionLeft - 1;
   }
 
   if (extent[1] - steps[idxInsertionRight - 1] >= steps[idxInsertionRight] - extent[1]) {
-    p1 = steps[idxInsertionRight];
+    idx1 = idxInsertionRight;
   } else {
-    p1 = steps[idxInsertionRight - 1];
+    idx1 = idxInsertionRight - 1;
   }
 
-  return [p0 + padding, p1 + padding];
+  const newDomain = scale.domain().filter((d, i) => {
+    if (i >= idx0 && i < idx1) {
+      return true;
+    }
+    return false;
+  });
+
+  const p0 = steps[idx0] + padding;
+  const p1 = steps[idx1] + padding;
+  const newExtent = [p0, p1];
+
+  return { newDomain, newExtent };
 }
 
 function stackMax<T>(serie: Array<T>): T {

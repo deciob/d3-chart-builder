@@ -11,15 +11,21 @@ import {
 
 import helpers from '../helpers';
 
+import {
+  actionHandlers,
+} from '../state';
+
 import type {
   BaseConfig,
   DerivedConfig,
+  Store,
 } from '../dataTypes';
 
 
 export default function (
   config: BaseConfig,
   derivedConfig: DerivedConfig,
+  store: Store,
   container: Array<mixed>,
 ): Array<mixed> {
   const width = derivedConfig.width;
@@ -35,12 +41,19 @@ export default function (
 
   function brushended() {
     if (!event.sourceEvent) return; // Only transition after input.
-    if (!event.selection) return; // Ignore empty selections.
+    if (!event.selection) {
+      store.dispatch(actionHandlers.updateBrushExtent(event.selection));
+      store.dispatch(actionHandlers.updateXDomain(derivedConfig.xDomain));
+      return;
+    } // Ignore empty selections.
 
-    const newExtent = helpers
-      .snapBrushToXBandScale(event.selection, derivedConfig.xScale);
+    const newDomainExtent: {newDomain: [number, number], newExtent: [number, number]} =
+      helpers.snapBrushToXBandScale(event.selection, derivedConfig.xScale);
 
-    select(this).transition().call(event.target.move, newExtent);
+    store.dispatch(actionHandlers.updateBrushExtent(newDomainExtent.newExtent));
+    store.dispatch(actionHandlers.updateXDomain(newDomainExtent.newDomain));
+
+    select(this).transition().call(event.target.move, newDomainExtent.newExtent);
   }
 
   brushG.call(

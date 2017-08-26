@@ -7,15 +7,22 @@ import {
 
 export const actions = {
   UPDATE_BRUSH_EXTENT: 'UPDATE_BRUSH_EXTENT',
+  UPDATE_X_DOMAIN: 'UPDATE_X_DOMAIN',
 };
 
 export const actionHandlers = {
-  updateBrushExtent: function updateBrushExtent(value) {
-    return {
+  updateBrushExtent: value => (
+    {
       type: actions.UPDATE_BRUSH_EXTENT,
       value,
-    };
-  },
+    }
+  ),
+  updateXDomain: value => (
+    {
+      type: actions.UPDATE_X_DOMAIN,
+      value,
+    }
+  ),
 };
 
 export function reducer(state = {}, action) {
@@ -23,6 +30,10 @@ export function reducer(state = {}, action) {
     case actions.UPDATE_BRUSH_EXTENT:
       return Object.assign({}, state, {
         brushExtent: action.value,
+      });
+    case actions.UPDATE_X_DOMAIN:
+      return Object.assign({}, state, {
+        xDomain: action.value,
       });
     default:
       return state;
@@ -35,6 +46,7 @@ export function createStore(preloadedState) {
   const dispatcher =
     d3Dispatch(
       actions.UPDATE_BRUSH_EXTENT,
+      actions.UPDATE_X_DOMAIN,
     );
 
   function dispatch(action) {

@@ -6055,24 +6055,35 @@ function snapBrushToXBandScale(extent$$1, scale) {
   var padding = Math.round(scale.step() * scale.paddingInner() / 2);
   var idxInsertionLeft = bisectRight(steps, extent$$1[0]);
   var idxInsertionRight = bisectRight(steps, extent$$1[1]);
-  var p0 = void 0;
-  var p1 = void 0;
+  var idx0 = void 0;
+  var idx1 = void 0;
 
   if (extent$$1[0] - steps[idxInsertionLeft - 1] >= steps[idxInsertionLeft] - extent$$1[0]) {
     // ...|.....x..|...
-    p0 = steps[idxInsertionLeft];
+    idx0 = idxInsertionLeft;
   } else {
     // ...|..x.....|...
-    p0 = steps[idxInsertionLeft - 1];
+    idx0 = idxInsertionLeft - 1;
   }
 
   if (extent$$1[1] - steps[idxInsertionRight - 1] >= steps[idxInsertionRight] - extent$$1[1]) {
-    p1 = steps[idxInsertionRight];
+    idx1 = idxInsertionRight;
   } else {
-    p1 = steps[idxInsertionRight - 1];
+    idx1 = idxInsertionRight - 1;
   }
 
-  return [p0 + padding, p1 + padding];
+  var newDomain = scale.domain().filter(function (d, i) {
+    if (i >= idx0 && i < idx1) {
+      return true;
+    }
+    return false;
+  });
+
+  var p0 = steps[idx0] + padding;
+  var p1 = steps[idx1] + padding;
+  var newExtent = [p0, p1];
+
+  return { newDomain: newDomain, newExtent: newExtent };
 }
 
 function stackMax(serie) {
@@ -6099,9 +6110,77 @@ var helpers = {
   stackMin: stackMin
 };
 
+// TODO
+
+var actions = {
+  UPDATE_BRUSH_EXTENT: 'UPDATE_BRUSH_EXTENT',
+  UPDATE_X_DOMAIN: 'UPDATE_X_DOMAIN'
+};
+
+var actionHandlers = {
+  updateBrushExtent: function updateBrushExtent(value) {
+    return {
+      type: actions.UPDATE_BRUSH_EXTENT,
+      value: value
+    };
+  },
+  updateXDomain: function updateXDomain(value) {
+    return {
+      type: actions.UPDATE_X_DOMAIN,
+      value: value
+    };
+  }
+};
+
+function reducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var action = arguments[1];
+
+  switch (action.type) {
+    case actions.UPDATE_BRUSH_EXTENT:
+      return Object.assign({}, state, {
+        brushExtent: action.value
+      });
+    case actions.UPDATE_X_DOMAIN:
+      return Object.assign({}, state, {
+        xDomain: action.value
+      });
+    default:
+      return state;
+  }
+}
+
+function createStore(preloadedState) {
+  var currentState = preloadedState;
+
+  var dispatcher = dispatch(actions.UPDATE_BRUSH_EXTENT, actions.UPDATE_X_DOMAIN);
+
+  function dispatch$$1(action) {
+    currentState = reducer(currentState, action);
+    dispatcher.call(action.type, null, currentState);
+  }
+
+  function subscribe(action, callback) {
+    dispatcher.on(action, callback);
+    return function unsubscribe() {
+      dispatcher.on(action, null);
+    };
+  }
+
+  function getState() {
+    return currentState;
+  }
+
+  return {
+    dispatch: dispatch$$1,
+    getState: getState,
+    subscribe: subscribe
+  };
+}
+
 //      
 
-var brush = function (config, derivedConfig, container) {
+var brush = function (config, derivedConfig, store, container) {
   var width = derivedConfig.width;
   var height = derivedConfig.height;
 
@@ -6115,11 +6194,18 @@ var brush = function (config, derivedConfig, container) {
 
   function brushended() {
     if (!event.sourceEvent) return; // Only transition after input.
-    if (!event.selection) return; // Ignore empty selections.
+    if (!event.selection) {
+      store.dispatch(actionHandlers.updateBrushExtent(event.selection));
+      store.dispatch(actionHandlers.updateXDomain(derivedConfig.xDomain));
+      return;
+    } // Ignore empty selections.
 
-    var newExtent = helpers.snapBrushToXBandScale(event.selection, derivedConfig.xScale);
+    var newDomainExtent = helpers.snapBrushToXBandScale(event.selection, derivedConfig.xScale);
 
-    select(this).transition().call(event.target.move, newExtent);
+    store.dispatch(actionHandlers.updateBrushExtent(newDomainExtent.newExtent));
+    store.dispatch(actionHandlers.updateXDomain(newDomainExtent.newDomain));
+
+    select(this).transition().call(event.target.move, newDomainExtent.newExtent);
   }
 
   brushG.call(brushX().extent([[0, 0], [width, height]]).on('end', brushended));
@@ -6399,13 +6485,14 @@ function setup(config, data) // TODO data type
 
 var barChart = function () {
   var config = helpers.extend(baseConfig, barConfig);
+  var store = createStore({});
 
   function exports(selection) {
     // Concept:
     // data
     // config
     // derivedConfig
-    // state
+    // store
 
     // $FlowNoD3
     var data = selection.datum();
@@ -6413,8 +6500,11 @@ var barChart = function () {
     var _setup = setup(config, data),
         derivedConfig = _setup.derivedConfig,
         barData = _setup.barData;
-    // TODO
-    // const store = createStore(derivedConfig);
+
+    // store.subscribe(
+    //   `${actions.UPDATE_X_DOMAIN}.charts.bar`,
+    //   state => console.log('state.xDomain', state.xDomain),
+    // );
 
     var wrapperComponent = wrapper(config, derivedConfig, selection);
     bar(config, derivedConfig, wrapperComponent, barData);
@@ -6425,11 +6515,12 @@ var barChart = function () {
       yAxis(config, derivedConfig, wrapperComponent);
     }
     if (config.brushShow) {
-      brush(config, derivedConfig, wrapperComponent);
+      brush(config, derivedConfig, store, wrapperComponent);
     }
   }
 
   helpers.getset(exports, config);
+  exports.subscribe = store.subscribe;
 
   return exports;
 };

@@ -73,7 +73,7 @@ test('isObject', () => {
   expect(helpers.isObject({ number: 44 })).toBe(true);
 });
 
-test('snapBrushToXBandScale a', () => {
+test('snapBrushToBandScale a', () => {
   const domain = ['a', 'b', 'c', 'd'];
   const range = [0, 100];
   const scale = helpers.getOrdinalBandScale(domain, range);
@@ -84,10 +84,10 @@ test('snapBrushToXBandScale a', () => {
     newDomain: ['c'],
     newExtent: [(scale.step() * 2) + padding, (scale.step() * 3) + padding],
   };
-  expect(helpers.snapBrushToXBandScale(extent, scale)).toEqual(expected);
+  expect(helpers.snapBrushToBandScale(extent, scale)).toEqual(expected);
 });
 
-test('snapBrushToXBandScale b', () => {
+test('snapBrushToBandScale b', () => {
   const domain = ['a', 'b', 'c', 'd'];
   const range = [0, 100];
   const scale = helpers.getOrdinalBandScale(domain, range);
@@ -98,10 +98,10 @@ test('snapBrushToXBandScale b', () => {
     newDomain: ['c'],
     newExtent: [(scale.step() * 2) + padding, (scale.step() * 3) + padding],
   };
-  expect(helpers.snapBrushToXBandScale(extent, scale)).toEqual(expected);
+  expect(helpers.snapBrushToBandScale(extent, scale)).toEqual(expected);
 });
 
-test('snapBrushToXBandScale c', () => {
+test('snapBrushToBandScale c', () => {
   const domain = ['a', 'b', 'c', 'd'];
   const range = [0, 100];
   const scale = helpers.getOrdinalBandScale(domain, range);
@@ -112,5 +112,5 @@ test('snapBrushToXBandScale c', () => {
     newDomain: ['b', 'c'],
     newExtent: [scale.step() + padding, (scale.step() * 3) + padding],
   };
-  expect(helpers.snapBrushToXBandScale(extent, scale)).toEqual(expected);
+  expect(helpers.snapBrushToBandScale(extent, scale)).toEqual(expected);
 });

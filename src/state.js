@@ -23,6 +23,12 @@ export const actionHandlers = {
       value,
     }
   ),
+  updateYDomain: value => (
+    {
+      type: actions.UPDATE_Y_DOMAIN,
+      value,
+    }
+  ),
 };
 
 export function reducer(state = {}, action) {
@@ -34,6 +40,10 @@ export function reducer(state = {}, action) {
     case actions.UPDATE_X_DOMAIN:
       return Object.assign({}, state, {
         xDomain: action.value,
+      });
+    case actions.UPDATE_Y_DOMAIN:
+      return Object.assign({}, state, {
+        yDomain: action.value,
       });
     default:
       return state;
@@ -47,6 +57,7 @@ export function createStore(preloadedState) {
     d3Dispatch(
       actions.UPDATE_BRUSH_EXTENT,
       actions.UPDATE_X_DOMAIN,
+      actions.UPDATE_Y_DOMAIN,
     );
 
   function dispatch(action) {

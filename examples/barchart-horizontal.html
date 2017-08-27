@@ -4,9 +4,9 @@
   <meta charset='utf-8'>
   <title>barchart horizontal</title>
   <style type="text/css">
-    .bar {
+    /*.bar {
       fill: #fa9fb5;
-    }
+    }*/
   </style>
 </head>
 <body>
@@ -54,6 +54,8 @@
     barChart
       .width(800)
       .height(600)
+      .fill('#fa9fb5')
+      // .brushShow(true)
       .transitionDuration(duration)
       .layout('horizontal')
       .xAccessor(d => d.y)

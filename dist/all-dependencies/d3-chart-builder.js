@@ -5569,7 +5569,9 @@ function brushX() {
   return brush$2(X);
 }
 
-
+function brushY() {
+  return brush$2(Y);
+}
 
 function brush$2(dim) {
   var extent = defaultExtent,
@@ -6049,7 +6051,7 @@ function getset(f, state) {
   return f;
 }
 
-function snapBrushToXBandScale(extent$$1, scale) {
+function snapBrushToBandScale(extent$$1, scale) {
   var steps = [0].concat(scale.domain().map(function (d, i) {
     return scale.step() * (i + 1);
   }));
@@ -6106,7 +6108,7 @@ var helpers = {
   getQuantitativeScale: getQuantitativeScale,
   getset: getset,
   isObject: isObject,
-  snapBrushToXBandScale: snapBrushToXBandScale,
+  snapBrushToBandScale: snapBrushToBandScale,
   stackMax: stackMax,
   stackMin: stackMin
 };
@@ -6130,6 +6132,12 @@ var actionHandlers = {
       type: actions.UPDATE_X_DOMAIN,
       value: value
     };
+  },
+  updateYDomain: function updateYDomain(value) {
+    return {
+      type: actions.UPDATE_Y_DOMAIN,
+      value: value
+    };
   }
 };
 
@@ -6146,6 +6154,10 @@ function reducer() {
       return Object.assign({}, state, {
         xDomain: action.value
       });
+    case actions.UPDATE_Y_DOMAIN:
+      return Object.assign({}, state, {
+        yDomain: action.value
+      });
     default:
       return state;
   }
@@ -6154,7 +6166,7 @@ function reducer() {
 function createStore(preloadedState) {
   var currentState = preloadedState;
 
-  var dispatcher = dispatch(actions.UPDATE_BRUSH_EXTENT, actions.UPDATE_X_DOMAIN);
+  var dispatcher = dispatch(actions.UPDATE_BRUSH_EXTENT, actions.UPDATE_X_DOMAIN, actions.UPDATE_Y_DOMAIN);
 
   function dispatch$$1(action) {
     currentState = reducer(currentState, action);
@@ -6194,36 +6206,50 @@ var brush = function (config, derivedConfig, store, container) {
   }
 
   function brushended() {
+    var scale = config.layout === 'horizontal' ? derivedConfig.yScale : derivedConfig.xScale;
+
     if (!event.sourceEvent) return; // Only transition after input.
     if (!event.selection) {
       store.dispatch(actionHandlers.updateBrushExtent(event.selection));
-      store.dispatch(actionHandlers.updateXDomain(derivedConfig.xDomain));
+      if (config.layout === 'horizontal') {
+        store.dispatch(actionHandlers.updateYDomain(derivedConfig.yDomain));
+      } else {
+        store.dispatch(actionHandlers.updateXDomain(derivedConfig.xDomain));
+      }
       return;
     } // Ignore empty selections.
 
-    var newDomainExtent = helpers.snapBrushToXBandScale(event.selection, derivedConfig.xScale);
+    var newDomainExtent = helpers.snapBrushToBandScale(event.selection, scale);
 
     store.dispatch(actionHandlers.updateBrushExtent(newDomainExtent.newExtent));
-    store.dispatch(actionHandlers.updateXDomain(newDomainExtent.newDomain));
+    if (config.layout === 'horizontal') {
+      store.dispatch(actionHandlers.updateYDomain(newDomainExtent.newDomain));
+    } else {
+      store.dispatch(actionHandlers.updateXDomain(newDomainExtent.newDomain));
+    }
 
     select(this).transition().call(event.target.move, newDomainExtent.newExtent);
   }
 
-  brushG.call(brushX().extent([[0, 0], [width, height]]).on('end', brushended));
+  if (config.layout === 'horizontal') {
+    brushG.call(brushY().extent([[0, 0], [width, height]]).on('end', brushended));
+  } else {
+    brushG.call(brushX().extent([[0, 0], [width, height]]).on('end', brushended));
+  }
 
   return brushG;
 };
 
 //      
 
-function fillBar(config, newState, d) {
-  var isInDomain = !config.brushShow || (newState.xDomain && newState.xDomain.find(function (x) {
-    return x === config.xAccessor(d);
+function fillBar(brushShow, domain, accessor, fill, d) {
+  var isInDomain = !brushShow || (domain && domain.find(function (x) {
+    return x === accessor(d);
   })) !== undefined;
-  if (config.fill && isInDomain) {
-    return config.fill;
-  } else if (config.fill && !isInDomain) {
-    var hslColor = hsl(config.fill);
+  if (fill && isInDomain) {
+    return fill;
+  } else if (fill && !isInDomain) {
+    var hslColor = hsl(fill);
     hslColor.s = 0.1;
     hslColor.opacity = 0.5;
     return hslColor.toString();
@@ -6260,8 +6286,6 @@ var bar = function (config, derivedConfig, store, container, data) // TODO data 
   var zScale = derivedConfig.zScale;
   var state = store.getState();
 
-  var bindedFillBar = fillBar.bind(undefined, config, state);
-
   // $FlowNoD3
   var barsG = container.select('.bars-g');
 
@@ -6272,6 +6296,7 @@ var bar = function (config, derivedConfig, store, container, data) // TODO data 
 
   /* eslint-disable indent */
   if (config.layout === 'horizontal') {
+    var bindedFillBar = fillBar.bind(undefined, config.brushShow, state.yDomain, config.yAccessor, config.fill);
     var zeroLevel = xScale(0);
     // UPDATE
     var bars = barsG.selectAll('.bar').data(data, yAccessor);
@@ -6298,8 +6323,9 @@ var bar = function (config, derivedConfig, store, container, data) // TODO data 
       return scaledValue + zeroLevel;
     }).attr('y', function (d) {
       return yScale(yAccessor(d));
-    }).attr('height', yScale.bandwidth()).delay(delay);
+    }).attr('height', yScale.bandwidth()).attr('fill', bindedFillBar).delay(delay);
   } else if (config.layout === 'vertical') {
+    var _bindedFillBar = fillBar.bind(undefined, config.brushShow, state.xDomain, config.xAccessor, config.fill);
     var _zeroLevel = yScale(0);
     // UPDATE
     var _bars = barsG.selectAll('.bar').data(data, xAccessor);
@@ -6326,8 +6352,12 @@ var bar = function (config, derivedConfig, store, container, data) // TODO data 
         return height - scaledValue - (height - _zeroLevel);
       }
       return height - scaledValue + (height - _zeroLevel);
-    }).attr('fill', bindedFillBar).delay(delay);
+    }).attr('fill', _bindedFillBar).delay(delay);
   } else if (config.layout === 'verticalStacked') {
+    // TODO
+    // const bindedFillBar = fillBar.bind(
+    //   undefined, config.brushShow, state.xDomain, config.xAccessor, config.fill
+    // );
     var _zeroLevel2 = yScale(0);
     // UPDATE
     // https://github.com/d3/d3-selection#selection_data
@@ -6363,15 +6393,20 @@ var bar = function (config, derivedConfig, store, container, data) // TODO data 
   /* eslint-enable indent */
 
   store.subscribe(actions.UPDATE_X_DOMAIN + '.components.bar', function (newState) {
-    if (config.layout === 'horizontal') {
-      // 'TODO'
-    } else if (config.layout === 'vertical') {
+    if (config.layout === 'vertical') {
       if (!config.fill) return;
-      barsG.selectAll('.bar').attr('fill', fillBar.bind(undefined, config, newState));
+      barsG.selectAll('.bar').attr('fill', fillBar.bind(undefined, config.brushShow, newState.xDomain, config.xAccessor, config.fill));
     } else if (config.layout === 'verticalStacked') {
       barsG.selectAll('.bars-g-nested').each(function (d, i, nodes) {
         select(nodes[i]).selectAll('.bar').attr('fill', fillNestedBar.bind(undefined, d.key, zScale, config, newState));
       });
+    }
+  });
+
+  store.subscribe(actions.UPDATE_Y_DOMAIN + '.components.bar', function (newState) {
+    if (config.layout === 'horizontal') {
+      if (!config.fill) return;
+      barsG.selectAll('.bar').attr('fill', fillBar.bind(undefined, config.brushShow, newState.yDomain, config.yAccessor, config.fill));
     }
   });
 
@@ -6577,6 +6612,7 @@ var barChart = function () {
         barData = _setup.barData;
 
     store.dispatch(actionHandlers.updateXDomain(derivedConfig.xDomain));
+    store.dispatch(actionHandlers.updateYDomain(derivedConfig.yDomain));
 
     // store.subscribe(
     //   `${actions.UPDATE_X_DOMAIN}.charts.bar`,

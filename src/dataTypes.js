@@ -36,7 +36,7 @@ export type BaseConfig = {|
   yAccessor: (any) => any, /* D3GenericDataAccessor */
   yAxis: void | (any) => any,
   yAxisShow: boolean,
-  yDomain: void | [number, number],
+  yDomain: void | mixed[],
 |};
 
 export type D3GenericDataAccessor =
@@ -51,7 +51,7 @@ export type DerivedConfig = {|
   xRange: [number, number],
   xScale: (any) => any,
   yRange: [number, number],
-  yDomain: [number, number],
+  yDomain: mixed[],
   yScale: (any) => any,
   zScale: void | (any) => any,
 |};
@@ -59,6 +59,7 @@ export type DerivedConfig = {|
 export type State = {|
   brushExtent: ?[number, number],
   xDomain: ?mixed[],
+  yDomain: ?mixed[],
 |};
 
 export type Store = {|

@@ -20,16 +20,18 @@ import type {
 
 
 export function fillBar(
-  config: BaseConfig & BarConfig,
-  newState: State,
+  brushShow: boolean,
+  domain: ?mixed[],
+  accessor: (any) => any,
+  fill: ?string,
   d: mixed[],
 ): ?string {
-  const isInDomain = !config.brushShow || (newState.xDomain &&
-    newState.xDomain.find(x => x === config.xAccessor(d))) !== undefined;
-  if (config.fill && isInDomain) {
-    return config.fill;
-  } else if (config.fill && !isInDomain) {
-    const hslColor = hsl(config.fill);
+  const isInDomain = !brushShow ||
+    (domain && domain.find(x => x === accessor(d))) !== undefined;
+  if (fill && isInDomain) {
+    return fill;
+  } else if (fill && !isInDomain) {
+    const hslColor = hsl(fill);
     hslColor.s = 0.1;
     hslColor.opacity = 0.5;
     return hslColor.toString();
@@ -77,8 +79,6 @@ export default function (
   const zScale = derivedConfig.zScale;
   const state = store.getState();
 
-  const bindedFillBar = fillBar.bind(undefined, config, state);
-
   // $FlowNoD3
   let barsG = container.select('.bars-g');
 
@@ -90,6 +90,9 @@ export default function (
 
   /* eslint-disable indent */
   if (config.layout === 'horizontal') {
+    const bindedFillBar = fillBar.bind(
+      undefined, config.brushShow, state.yDomain, config.yAccessor, config.fill,
+    );
     const zeroLevel = xScale(0);
     // UPDATE
     const bars = barsG.selectAll('.bar').data(data, yAccessor);
@@ -122,8 +125,12 @@ export default function (
         })
         .attr('y', d => yScale(yAccessor(d)))
         .attr('height', yScale.bandwidth())
+        .attr('fill', bindedFillBar)
         .delay(delay);
   } else if (config.layout === 'vertical') {
+    const bindedFillBar = fillBar.bind(
+      undefined, config.brushShow, state.xDomain, config.xAccessor, config.fill,
+    );
     const zeroLevel = yScale(0);
     // UPDATE
     const bars = barsG.selectAll('.bar').data(data, xAccessor);
@@ -159,6 +166,10 @@ export default function (
         .attr('fill', bindedFillBar)
         .delay(delay);
   } else if (config.layout === 'verticalStacked') {
+    // TODO
+    // const bindedFillBar = fillBar.bind(
+    //   undefined, config.brushShow, state.xDomain, config.xAccessor, config.fill
+    // );
     const zeroLevel = yScale(0);
     // UPDATE
     // https://github.com/d3/d3-selection#selection_data
@@ -200,13 +211,13 @@ export default function (
   store.subscribe(
     `${actions.UPDATE_X_DOMAIN}.components.bar`,
     (newState) => {
-      if (config.layout === 'horizontal') {
-        // 'TODO'
-      } else if (config.layout === 'vertical') {
+      if (config.layout === 'vertical') {
         if (!config.fill) return;
         barsG
           .selectAll('.bar')
-          .attr('fill', fillBar.bind(undefined, config, newState));
+          .attr('fill', fillBar.bind(
+            undefined, config.brushShow, newState.xDomain, config.xAccessor, config.fill,
+          ));
       } else if (config.layout === 'verticalStacked') {
         barsG
           .selectAll('.bars-g-nested')
@@ -217,6 +228,20 @@ export default function (
                 fillNestedBar.bind(undefined, d.key, zScale, config, newState),
               );
           });
+      }
+    },
+  );
+
+  store.subscribe(
+    `${actions.UPDATE_Y_DOMAIN}.components.bar`,
+    (newState) => {
+      if (config.layout === 'horizontal') {
+        if (!config.fill) return;
+        barsG
+          .selectAll('.bar')
+          .attr('fill', fillBar.bind(
+            undefined, config.brushShow, newState.yDomain, config.yAccessor, config.fill,
+          ));
       }
     },
   );

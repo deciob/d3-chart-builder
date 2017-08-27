@@ -215,6 +215,7 @@ export default function (): (Array<mixed>) => mixed {
     const { derivedConfig, barData } = setup(config, data);
 
     store.dispatch(actionHandlers.updateXDomain(derivedConfig.xDomain));
+    store.dispatch(actionHandlers.updateYDomain(derivedConfig.yDomain));
 
     // store.subscribe(
     //   `${actions.UPDATE_X_DOMAIN}.charts.bar`,

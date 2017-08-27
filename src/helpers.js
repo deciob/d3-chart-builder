@@ -91,7 +91,7 @@ function getset(
   return f;
 }
 
-function snapBrushToXBandScale(
+function snapBrushToBandScale(
   extent: [number, number],
   scale: (any) => any,
 ): {newDomain: [number, number], newExtent: [number, number]} {
@@ -146,7 +146,7 @@ export default {
   getQuantitativeScale,
   getset,
   isObject,
-  snapBrushToXBandScale,
+  snapBrushToBandScale,
   stackMax,
   stackMin,
 };

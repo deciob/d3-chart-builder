@@ -2,6 +2,7 @@
 
 import {
   brushX,
+  brushY,
 } from 'd3-brush';
 
 import {
@@ -40,27 +41,46 @@ export default function (
   }
 
   function brushended() {
+    const scale = config.layout === 'horizontal' ?
+      derivedConfig.yScale : derivedConfig.xScale;
+
     if (!event.sourceEvent) return; // Only transition after input.
     if (!event.selection) {
       store.dispatch(actionHandlers.updateBrushExtent(event.selection));
-      store.dispatch(actionHandlers.updateXDomain(derivedConfig.xDomain));
+      if (config.layout === 'horizontal') {
+        store.dispatch(actionHandlers.updateYDomain(derivedConfig.yDomain));
+      } else {
+        store.dispatch(actionHandlers.updateXDomain(derivedConfig.xDomain));
+      }
       return;
     } // Ignore empty selections.
 
     const newDomainExtent: {newDomain: [number, number], newExtent: [number, number]} =
-      helpers.snapBrushToXBandScale(event.selection, derivedConfig.xScale);
+      helpers.snapBrushToBandScale(event.selection, scale);
 
     store.dispatch(actionHandlers.updateBrushExtent(newDomainExtent.newExtent));
-    store.dispatch(actionHandlers.updateXDomain(newDomainExtent.newDomain));
+    if (config.layout === 'horizontal') {
+      store.dispatch(actionHandlers.updateYDomain(newDomainExtent.newDomain));
+    } else {
+      store.dispatch(actionHandlers.updateXDomain(newDomainExtent.newDomain));
+    }
 
     select(this).transition().call(event.target.move, newDomainExtent.newExtent);
   }
 
-  brushG.call(
-    brushX()
-      .extent([[0, 0], [width, height]])
-      .on('end', brushended),
-  );
+  if (config.layout === 'horizontal') {
+    brushG.call(
+      brushY()
+        .extent([[0, 0], [width, height]])
+        .on('end', brushended),
+    );
+  } else {
+    brushG.call(
+      brushX()
+        .extent([[0, 0], [width, height]])
+        .on('end', brushended),
+    );
+  }
 
   return brushG;
 }

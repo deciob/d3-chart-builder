@@ -5299,7 +5299,6 @@ var baseConfig = {
   xAxis: undefined,
   xAxisShow: true,
   xDomain: undefined,
-  xLinearGradient: false,
   yAccessor: function yAccessor(d) {
     return d.y;
   },
@@ -6187,9 +6186,7 @@ var brush = function (config, derivedConfig, store, container) {
   var height = derivedConfig.height;
 
   // $FlowNoD3
-  var brushG = container.select('brush-g');
-
-  console.log('brush');
+  var brushG = container.select('.brush-g');
 
   if (brushG.empty()) {
     // $FlowNoD3

@@ -32,7 +32,7 @@ export default function (
   const height = derivedConfig.height;
 
   // $FlowNoD3
-  let brushG = container.select('brush-g');
+  let brushG = container.select('.brush-g');
 
   if (brushG.empty()) {
     // $FlowNoD3

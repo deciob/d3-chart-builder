@@ -31,6 +31,7 @@ export const baseConfig: BaseConfig = {
 
 export const barConfig: BarConfig = {
   divergin: false,
+  fill: undefined,
   quantitativeScaleType: 'linear',
   schemeCategory: undefined,
   // stack: undefined,

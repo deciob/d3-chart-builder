@@ -5299,6 +5299,7 @@ var baseConfig = {
   xAxis: undefined,
   xAxisShow: true,
   xDomain: undefined,
+  xLinearGradient: false,
   yAccessor: function yAccessor(d) {
     return d.y;
   },
@@ -5309,6 +5310,7 @@ var baseConfig = {
 
 var barConfig = {
   divergin: false,
+  fill: undefined,
   quantitativeScaleType: 'linear',
   schemeCategory: undefined,
   // stack: undefined,
@@ -6187,6 +6189,8 @@ var brush = function (config, derivedConfig, store, container) {
   // $FlowNoD3
   var brushG = container.select('brush-g');
 
+  console.log('brush');
+
   if (brushG.empty()) {
     // $FlowNoD3
     brushG = container.append('g').attr('class', 'brush-g');
@@ -6215,9 +6219,39 @@ var brush = function (config, derivedConfig, store, container) {
 
 //      
 
+function fillBar(config, newState, d) {
+  var isInDomain = !config.brushShow || (newState.xDomain && newState.xDomain.find(function (x) {
+    return x === config.xAccessor(d);
+  })) !== undefined;
+  if (config.fill && isInDomain) {
+    return config.fill;
+  } else if (config.fill && !isInDomain) {
+    var hslColor = hsl(config.fill);
+    hslColor.s = 0.1;
+    hslColor.opacity = 0.5;
+    return hslColor.toString();
+  }
+  return undefined;
+}
+
+function fillNestedBar(key, zScale, config, newState, d) {
+  var isInDomain = !config.brushShow || (newState.xDomain && newState.xDomain.find(function (x) {
+    return x === config.xAccessor(d.data);
+  })) !== undefined;
+  var fillColour = zScale && zScale(key);
+  if (isInDomain) {
+    return fillColour;
+  } else if (!isInDomain) {
+    var hslColor = hsl(fillColour);
+    hslColor.s = 0.5;
+    hslColor.opacity = 0.5;
+    return hslColor.toString();
+  }
+  return undefined;
+}
 
 // TODO data should be of type Array<{[key: string]: number | string}> or nested!
-var bar = function (config, derivedConfig, container, data) // TODO data type
+var bar = function (config, derivedConfig, store, container, data) // TODO data type
 {
   var height = derivedConfig.height;
   var xAccessor = config.xAccessor;
@@ -6227,6 +6261,9 @@ var bar = function (config, derivedConfig, container, data) // TODO data type
   var transition = derivedConfig.transition;
   var delay = derivedConfig.transitionDelay;
   var zScale = derivedConfig.zScale;
+  var state = store.getState();
+
+  var bindedFillBar = fillBar.bind(undefined, config, state);
 
   // $FlowNoD3
   var barsG = container.select('.bars-g');
@@ -6292,7 +6329,7 @@ var bar = function (config, derivedConfig, container, data) // TODO data type
         return height - scaledValue - (height - _zeroLevel);
       }
       return height - scaledValue + (height - _zeroLevel);
-    }).delay(delay);
+    }).attr('fill', bindedFillBar).delay(delay);
   } else if (config.layout === 'verticalStacked') {
     var _zeroLevel2 = yScale(0);
     // UPDATE
@@ -6316,7 +6353,7 @@ var bar = function (config, derivedConfig, container, data) // TODO data type
     // EXIT
     _bars2.exit().remove();
     // ENTER + UPDATE
-    _bars2.enter().append('rect').attr('x', function (d) {
+    _bars2.enter().append('rect').attr('class', 'bar').attr('x', function (d) {
       return xScale(xAccessor(d.data));
     }).attr('width', xScale.bandwidth).attr('y', _zeroLevel2).merge(_bars2).transition(transition).attr('x', function (d) {
       return xScale(xAccessor(d.data));
@@ -6327,6 +6364,19 @@ var bar = function (config, derivedConfig, container, data) // TODO data type
     }).delay(delay);
   }
   /* eslint-enable indent */
+
+  store.subscribe(actions.UPDATE_X_DOMAIN + '.components.bar', function (newState) {
+    if (config.layout === 'horizontal') {
+      // 'TODO'
+    } else if (config.layout === 'vertical') {
+      if (!config.fill) return;
+      barsG.selectAll('.bar').attr('fill', fillBar.bind(undefined, config, newState));
+    } else if (config.layout === 'verticalStacked') {
+      barsG.selectAll('.bars-g-nested').each(function (d, i, nodes) {
+        select(nodes[i]).selectAll('.bar').attr('fill', fillNestedBar.bind(undefined, d.key, zScale, config, newState));
+      });
+    }
+  });
 
   return container;
 };
@@ -6349,6 +6399,31 @@ var wrapper = function (config, derivedConfig, container) {
     /* eslint-disable indent */
     // $FlowNoD3
     svg = container.append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
+    /* eslint-enable indent */
+  }
+
+  if (config.xLinearGradient) {
+    // TODO, work in progress
+    // inspired from: http://bl.ocks.org/nbremer/b1fbcc0ff00abe8893a087d85fc8005b
+    /* eslint-disable indent */
+    // const linearGradient = svg
+    //   .append('defs')
+    //   .append('linearGradient')
+    //     .attr('gradientUnits', 'userSpaceOnUse')
+    //     .attr('x1', 0)
+    //     .attr('y1', 0)
+    //     .attr('x2', derivedConfig.width)
+    //     .attr('y2', 0)
+    //     .attr('id', 'x-linear-gradient');
+    //
+    // linearGradient.append('stop')
+    //     .attr('class', 'left').attr('offset', '40%').attr('stop-color', '#D6D6D6');
+    // linearGradient.append('stop')
+    //     .attr('class', 'left').attr('offset', '40%').attr('stop-color', '#BD2E86');
+    // linearGradient.append('stop')
+    //     .attr('class', 'right').attr('offset', '60%').attr('stop-color', '#BD2E86');
+    // linearGradient.append('stop')
+    //     .attr('class', 'right').attr('offset', '60%').attr('stop-color', '#D6D6D6');
     /* eslint-enable indent */
   }
 
@@ -6485,7 +6560,10 @@ function setup(config, data) // TODO data type
 
 var barChart = function () {
   var config = helpers.extend(baseConfig, barConfig);
-  var store = createStore({});
+  var store = createStore({
+    brushExtent: undefined,
+    xDomain: undefined
+  });
 
   function exports(selection) {
     // Concept:
@@ -6501,13 +6579,15 @@ var barChart = function () {
         derivedConfig = _setup.derivedConfig,
         barData = _setup.barData;
 
+    store.dispatch(actionHandlers.updateXDomain(derivedConfig.xDomain));
+
     // store.subscribe(
     //   `${actions.UPDATE_X_DOMAIN}.charts.bar`,
     //   state => console.log('state.xDomain', state.xDomain),
     // );
 
     var wrapperComponent = wrapper(config, derivedConfig, selection);
-    bar(config, derivedConfig, wrapperComponent, barData);
+    bar(config, derivedConfig, store, wrapperComponent, barData);
     if (config.xAxisShow) {
       xAxis(config, derivedConfig, wrapperComponent);
     }

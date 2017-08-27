@@ -36,7 +36,7 @@ import brush from '../components/brush';
 
 import bar from '../components/bar';
 import helpers from '../helpers';
-import { createStore } from '../state';
+import { createStore, actionHandlers } from '../state';
 import wrapper from '../components/wrapper';
 
 import type {
@@ -198,7 +198,10 @@ function setup(
 
 export default function (): (Array<mixed>) => mixed {
   const config: BaseConfig & BarConfig = helpers.extend(baseConfig, barConfig);
-  const store: Store = createStore({});
+  const store: Store = createStore({
+    brushExtent: undefined,
+    xDomain: undefined,
+  });
 
   function exports(selection: Array<mixed>) {
     // Concept:
@@ -211,13 +214,15 @@ export default function (): (Array<mixed>) => mixed {
     const data = selection.datum();
     const { derivedConfig, barData } = setup(config, data);
 
+    store.dispatch(actionHandlers.updateXDomain(derivedConfig.xDomain));
+
     // store.subscribe(
     //   `${actions.UPDATE_X_DOMAIN}.charts.bar`,
     //   state => console.log('state.xDomain', state.xDomain),
     // );
 
     const wrapperComponent = wrapper(config, derivedConfig, selection);
-    bar(config, derivedConfig, wrapperComponent, barData);
+    bar(config, derivedConfig, store, wrapperComponent, barData);
     if (config.xAxisShow) {
       xAxis(config, derivedConfig, wrapperComponent);
     }

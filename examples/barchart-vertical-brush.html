@@ -8,9 +8,13 @@
       height: 50px;
     }
 
-    .bar {
-      fill: #feb24c;
+    .selection {
+      fill-opacity: 0.1;
     }
+
+    /*.bar {
+      fill: #feb24c;
+    }*/
   </style>
 </head>
 <body>
@@ -34,6 +38,7 @@
     barChart
       .width(800)
       .height(600)
+      .fill('#feb24c')
       .brushShow(true)
       .transitionDuration(duration)
       .margin({top: 5, left: 50, right: 0, bottom: 20});

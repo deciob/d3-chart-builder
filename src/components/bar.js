@@ -1,16 +1,69 @@
 // @flow
 
+import {
+  hsl,
+} from 'd3-color';
+
+import {
+  select,
+} from 'd3-selection';
+
+import { actions } from '../state';
+
 import type {
   BarConfig,
   BaseConfig,
   DerivedConfig,
+  State,
+  Store,
 } from '../dataTypes';
+
+
+export function fillBar(
+  config: BaseConfig & BarConfig,
+  newState: State,
+  d: mixed[],
+): ?string {
+  const isInDomain = !config.brushShow || (newState.xDomain &&
+    newState.xDomain.find(x => x === config.xAccessor(d))) !== undefined;
+  if (config.fill && isInDomain) {
+    return config.fill;
+  } else if (config.fill && !isInDomain) {
+    const hslColor = hsl(config.fill);
+    hslColor.s = 0.1;
+    hslColor.opacity = 0.5;
+    return hslColor.toString();
+  }
+  return undefined;
+}
+
+export function fillNestedBar(
+  key: string,
+  zScale: void | (any) => any,
+  config: BaseConfig & BarConfig,
+  newState: State,
+  d: any,
+): ?string {
+  const isInDomain = !config.brushShow || (newState.xDomain &&
+    newState.xDomain.find(x => x === config.xAccessor(d.data))) !== undefined;
+  const fillColour = zScale && zScale(key);
+  if (isInDomain) {
+    return fillColour;
+  } else if (!isInDomain) {
+    const hslColor = hsl(fillColour);
+    hslColor.s = 0.5;
+    hslColor.opacity = 0.5;
+    return hslColor.toString();
+  }
+  return undefined;
+}
 
 
 // TODO data should be of type Array<{[key: string]: number | string}> or nested!
 export default function (
   config: BaseConfig & BarConfig,
   derivedConfig: DerivedConfig,
+  store: Store,
   container: Array<mixed>,
   data: any, // TODO data type
 ): Array<mixed> {
@@ -22,6 +75,9 @@ export default function (
   const transition = derivedConfig.transition;
   const delay = derivedConfig.transitionDelay;
   const zScale = derivedConfig.zScale;
+  const state = store.getState();
+
+  const bindedFillBar = fillBar.bind(undefined, config, state);
 
   // $FlowNoD3
   let barsG = container.select('.bars-g');
@@ -100,6 +156,7 @@ export default function (
           }
           return (height - scaledValue) + (height - zeroLevel);
           })
+        .attr('fill', bindedFillBar)
         .delay(delay);
   } else if (config.layout === 'verticalStacked') {
     const zeroLevel = yScale(0);
@@ -126,6 +183,7 @@ export default function (
     // ENTER + UPDATE
     bars.enter()
       .append('rect')
+        .attr('class', 'bar')
         .attr('x', d => xScale(xAccessor(d.data)))
         .attr('width', xScale.bandwidth)
         .attr('y', zeroLevel)
@@ -138,6 +196,30 @@ export default function (
         .delay(delay);
   }
   /* eslint-enable indent */
+
+  store.subscribe(
+    `${actions.UPDATE_X_DOMAIN}.components.bar`,
+    (newState) => {
+      if (config.layout === 'horizontal') {
+        // 'TODO'
+      } else if (config.layout === 'vertical') {
+        if (!config.fill) return;
+        barsG
+          .selectAll('.bar')
+          .attr('fill', fillBar.bind(undefined, config, newState));
+      } else if (config.layout === 'verticalStacked') {
+        barsG
+          .selectAll('.bars-g-nested')
+          .each((d, i, nodes) => {
+            select(nodes[i]).selectAll('.bar')
+              .attr(
+                'fill',
+                fillNestedBar.bind(undefined, d.key, zScale, config, newState),
+              );
+          });
+      }
+    },
+  );
 
   return container;
 }

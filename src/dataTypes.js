@@ -4,6 +4,7 @@
 export type BarConfig = {|
   divergin: boolean,
   quantitativeScaleType: string,
+  fill: ?string,
   schemeCategory: ?string[],
   // stack: void | (any) => any,
   stackedKeys: string[],
@@ -56,8 +57,8 @@ export type DerivedConfig = {|
 |};
 
 export type State = {|
-  brushExtent: void | [number, number],
-  xDomain: mixed[],
+  brushExtent: ?[number, number],
+  xDomain: ?mixed[],
 |};
 
 export type Store = {|

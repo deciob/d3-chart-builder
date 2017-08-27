@@ -31,5 +31,30 @@ export default function (
     /* eslint-enable indent */
   }
 
+  if (config.xLinearGradient) {
+    // TODO, work in progress
+    // inspired from: http://bl.ocks.org/nbremer/b1fbcc0ff00abe8893a087d85fc8005b
+    /* eslint-disable indent */
+    // const linearGradient = svg
+    //   .append('defs')
+    //   .append('linearGradient')
+    //     .attr('gradientUnits', 'userSpaceOnUse')
+    //     .attr('x1', 0)
+    //     .attr('y1', 0)
+    //     .attr('x2', derivedConfig.width)
+    //     .attr('y2', 0)
+    //     .attr('id', 'x-linear-gradient');
+    //
+    // linearGradient.append('stop')
+    //     .attr('class', 'left').attr('offset', '40%').attr('stop-color', '#D6D6D6');
+    // linearGradient.append('stop')
+    //     .attr('class', 'left').attr('offset', '40%').attr('stop-color', '#BD2E86');
+    // linearGradient.append('stop')
+    //     .attr('class', 'right').attr('offset', '60%').attr('stop-color', '#BD2E86');
+    // linearGradient.append('stop')
+    //     .attr('class', 'right').attr('offset', '60%').attr('stop-color', '#D6D6D6');
+    /* eslint-enable indent */
+  }
+
   return svg;
 }
